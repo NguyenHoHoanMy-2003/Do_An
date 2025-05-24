@@ -1,0 +1,127 @@
+@import "./variables.scss";
+@import "./breakpoints.scss";
+
+.login {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  background: url("../../public/assets/login-bg.jpg") center;
+  background-size: cover;
+
+  &_content {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 40%;
+    padding: 40px;
+    background-color: rgba(0, 0, 0, 0.8);
+    border-radius: 20px;
+
+    @include lg {
+      width: 60%;
+    }
+
+    @include mm {
+      width: 80%;
+    }
+
+    &_form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+
+      // Style dùng chung cho tất cả các input
+      .input-field {
+        width: 100%;
+        padding: 7px 15px;
+        background-color: transparent;
+        border: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+        outline: none;
+        text-align: center;
+        color: white;
+
+        &::placeholder {
+          color: white;
+        }
+      }
+
+      // Trường mật khẩu có icon con mắt
+      .password-field {
+        position: relative;
+        width: 100%;
+
+        input {
+          @extend .input-field;
+          padding-right: 40px; // chừa chỗ cho icon
+        }
+
+        .eye-icon {
+          position: absolute;
+          right: 10px;
+          top: 50%;
+          transform: translateY(-50%);
+          cursor: pointer;
+          color: white;
+        }
+      }
+
+      input:not(:placeholder-shown):focus {
+        background: transparent;
+      }
+
+      button {
+        margin-top: 15px;
+        @include buttonStyle;
+        width: 50%;
+        font-family: 'Poppins', sans-serif;
+
+        &:hover {
+          box-shadow: 0 0 10px 3px rgba(255, 255, 255);
+        }
+      }
+    }
+
+    &_google {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    p {
+      color: white;
+      font-size: 12px;
+      text-align: center;
+    }
+  }
+
+  &_links {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+    width: 100%; // Đảm bảo chiều rộng 100% để hai link nằm đối diện nhau
+
+    a {
+      text-decoration: none;
+      color: white;
+      font-size: 13px;
+      font-weight: 600;
+      text-align: center;
+      font-family: 'Poppins', sans-serif;
+
+      &:hover {
+        text-decoration: underline;
+      }
+
+      &:last-child {
+        text-align: right; // Căn phải cho link cuối cùng
+      }
+    }
+  }
+}

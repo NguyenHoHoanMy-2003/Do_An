@@ -1,0 +1,82 @@
+.info-container {
+    width: 600px;
+    margin: 2rem auto;
+    background-color: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-family: 'Poppins', sans-serif;
+  }
+  
+  .info-container h2 {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: #333;
+    font-size: 1.8rem;
+    font-weight: 600;
+  }
+  
+  .info-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+  }
+  
+  .form-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .form-row label {
+    width: 40%;
+    font-weight: 500;
+    color: #333;
+  }
+  
+  .form-row input {
+    width: 60%;
+    padding: 0.8rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+    color: #333;
+    transition: all 0.3s;
+    background-color: white;
+  
+    &:disabled {
+      background-color: #f8f9fa;
+      cursor: not-allowed;
+    }
+  
+    &:focus {
+      border-color: #FF385C;
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(255, 56, 92, 0.1);
+    }
+  }
+  
+  .edit-button {
+    margin-top: 1.5rem;
+    width: 100%;
+    padding: 1rem;
+    font-weight: 500;
+    background-color: #FF385C;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 1rem;
+  
+    &:hover {
+      background-color: #E31C5F;
+    }
+  
+    &:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+  }
+  

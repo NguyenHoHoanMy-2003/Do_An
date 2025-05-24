@@ -1,0 +1,7 @@
+INSERT INTO categorys (id, code, value, header, subheader, created_at, updated_at) VALUES ("1", "PT", "Cho thuê Phòng Trọ", "Cho thuê Phòng Trọ - Kênh Phòng Trọ số 1 Việt Nam", "Cho thuê phòng trọ - Kênh đăng tin cho thuê căn hộ số 1: giá rẻ, chính chủ, đầy đủ tiện nghi - Có 71.657 tin đăng cho thuê.", current_timestamp, current_timestamp);
+
+INSERT INTO categorys (id, code, value, header, subheader, created_at, updated_at) VALUES ("2", "OG", "Cho thuê Ở Ghép", "Tìm Người Ở Ghép, Tìm Nam Ở Ghép, Tìm Nữ Ở Ghép, Mới Nhất 2025", "Cho thuê ở ghép đầy đủ tiện nghi - Có 11.098 tin đăng cho thuê.", current_timestamp, current_timestamp);
+
+INSERT INTO categorys (id, code, value, header, subheader, created_at, updated_at) VALUES ("3", "NNC", "Cho thuê nhà nguyên căn", "Cho Thuê Nhà Nguyên Căn, Giá Rẻ, Chính chủ, Mới Nhất 2022", "Cho thuê nhà nguyên căn - Kênh đăng tin cho thuê nhà số 1: giá rẻ, chính chủ, miễn trung gian, đầy đủ tiện nghi, mức giá, diện tích cho thuê khác nhau - Có 3.616 tin đăng cho thuê.", current_timestamp, current_timestamp);
+
+INSERT INTO categorys (id, code, value, header, subheader, created_at, updated_at) VALUES ("4", "CHMN", "Cho thuê Căn Hộ Mini", "Cho Thuê Căn Hộ Mini + Chung Cư Mini Giá Rẻ, Mới Nhất 2025", "Cho thuê căn hộ mini - Giá rẻ, chính chủ, đầy đủ tiện nghi - Có 3.616 tin đăng cho thuê.", current_timestamp, current_timestamp);

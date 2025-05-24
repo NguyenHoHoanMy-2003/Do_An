@@ -1,0 +1,118 @@
+@import "./variables.scss";
+@import "./breakpoints.scss";
+
+.category-list {
+  padding: 50px 80px;
+  display: flex;
+  justify-content: space-between;
+  gap: 50px;
+  flex-wrap: wrap;
+  background-color: #FBF1F4;
+
+  @include sm {
+    flex-direction: column;
+    padding: 50px 20px;
+  }
+
+  .category-left {
+    flex: 1;
+    min-width: 200px;
+
+    h1 {
+      font-size: 35px;
+      margin-bottom: 10px;
+      font-family: 'Poppins', sans-serif;
+      text-align: center;     
+    }
+
+    p {
+      font-size: 25px;
+      color: $darkgrey;
+      font-family: 'Poppins', sans-serif;
+    }
+  }
+
+  .category-right {
+    flex: 2;
+    display: grid;
+    grid-template-rows: repeat(2, auto);
+    grid-auto-flow: column;
+    gap: 40px 30px;
+    justify-content: flex-center;
+    
+    
+
+    .category {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: $darkgrey;
+      cursor: pointer;
+      text-align: center;
+
+      &_icon {
+        font-size: 30px;
+        
+      }
+
+      p {
+        font-size: 25px;
+        font-weight: 700;
+        font-family: 'Poppins', sans-serif;
+      }
+
+      &:hover {
+        color: $pinkred;
+      }
+
+      &.selected {
+        color: $pinkred;
+      }
+    }
+  }
+}
+
+
+
+.listings {
+  padding: 0 60px 120px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 5px;
+
+  @include lg {
+    padding: 0 20px 120px;
+  }
+}
+
+.property-block {
+  margin-bottom: 40px;
+  padding: 24px 16px 16px 16px;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.property-title {
+  font-size: 26px;
+  font-weight: 700;
+  color: #c2185b;
+  margin-bottom: 10px;
+}
+.floor-block {
+  margin-bottom: 24px;
+  padding: 12px 8px 8px 8px;
+  border-radius: 8px;
+  background: #f8f8f8;
+}
+.floor-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #7b1fa2;
+  margin-bottom: 8px;
+}
+.rooms-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
