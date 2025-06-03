@@ -78,33 +78,36 @@ exports.createPost = async (req, res) => {
     // B4: Tìm hoặc tạo building (property)
     let property = null;
     if (buildingName) {
+      // Tìm building hiện có
       property = await Property.findOne({
         where: { name_bd: buildingName }
       });
 
+      // Nếu chưa có, tạo mới
       if (!property) {
+        // Kiểm tra các trường cần thiết cho building mới
+        if (!streetAddress || !city || !district) {
+             return res.status(400).json({ message: "Địa chỉ (Street Address, City, District) là bắt buộc khi thêm tòa nhà mới." });
+        }
+        // Kiểm tra lại creatorId có tồn tại không
+        if (!creatorId) {
+            return res.status(401).json({ message: "User ID không hợp lệ." });
+        }
+
         property = await Property.create({
           id_property: uuidv4(),
-          name_bd: buildingName,
+          name_bd: buildingName, // Đã đảm bảo có giá trị ở đây
           host_id: creatorId,
           street_address: streetAddress,
           district_id: districtRecord?.id || null,
           city_id: cityRecord?.id || null,
-          description: description,
-          category_id: category[0].id
+          description: description, // Sử dụng description từ client
+          category_id: category[0].id // Có thể cần xem lại logic category cho building
         });
       }
     } else {
-      // Nếu không có building name, tạo một property mới
-      property = await Property.create({
-        id_property: uuidv4(),
-        host_id: creatorId,
-        street_address: streetAddress,
-        district_id: districtRecord?.id || null,
-        city_id: cityRecord?.id || null,
-        description: title,
-        category_id: category[0].id
-      });
+      // Nếu không có buildingName, trả về lỗi vì name_bd là NOT NULL
+      return res.status(400).json({ message: "Tên tòa nhà (buildingName) là bắt buộc." });
     }
 
     // B5: Tìm hoặc tạo floor

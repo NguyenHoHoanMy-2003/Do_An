@@ -2,14 +2,11 @@
   "development": {
     "username": "root",
     "password": null,
-    "database": "phongtro123",
+    "database": "do_an",
     "host": "127.0.0.1",
     "port": 3306,
     "dialect": "mysql",
-    "logging": false,
-    "migrationStorage": "json",
-    "migrationStoragePath": "sequelize-meta.json",
-    "migrationStorageTableName": "sequelize_meta"
+    "logging": false
   },
   "test": {
     "username": "root",

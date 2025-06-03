@@ -12,7 +12,6 @@ app.use(cors({
     methods: ["POST", "GET", "PUT", "DELETE"]
 }))
 app.use(express.json())
-// Sửa chính tả 'entended' => 'extended'
 app.use(express.urlencoded({ extended: true }))
 
 initRoutes(app)
