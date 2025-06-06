@@ -1,0 +1,213 @@
+.paybill-renter-container {
+  background: #fbf1f4;
+  min-height: 100vh;
+  padding: 2rem 0 4rem 0;
+  font-family: 'Poppins', sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  max-width: 1100px;
+  margin: 0 auto;
+
+  h1 {
+    font-size: 2.2rem;
+    font-weight: 600;
+    color: #222;
+    margin-bottom: 1.5rem;
+    text-align: left;
+    width: 100%;
+    max-width: 900px;
+  }
+
+  .bill-header {
+    display: flex;
+    justify-content: flex-start;
+    gap: 3rem;
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+    color: #222;
+    font-weight: 500;
+    flex-wrap: wrap;
+    width: 100%;
+    max-width: 900px;
+  }
+
+  h2 {
+    font-size: 1.7rem;
+    font-weight: 500;
+    color: #222;
+    margin-bottom: 2rem;
+    text-align: left;
+    width: 100%;
+    max-width: 900px;
+  }
+
+  .bill-content {
+    display: flex;
+    gap: 2.5rem;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    justify-content: space-between;
+  }
+
+  .bill-details {
+    background: #fff;
+    border-radius: 16px;
+    padding: 2.5rem 2rem;
+    min-width: 320px;
+    max-width: 400px;
+    width: 100%;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    flex: 1 1 350px;
+
+    .row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.2rem;
+      font-size: 1.1rem;
+      color: #222;
+      font-weight: 500;
+      width: 100%;
+
+      &.sub {
+        font-size: 1rem;
+        color: #666;
+        font-weight: 400;
+        gap: 0.5rem;
+        margin-left: 1.2rem;
+        width: 100%;
+      }
+
+      &.total {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #d72660;
+        margin-top: 1.5rem;
+        width: 100%;
+      }
+
+      input {
+        background: #f7f2f4;
+        border: none;
+        border-radius: 8px;
+        padding: 0.4rem 1rem;
+        font-size: 1.1rem;
+        color: #222;
+        font-family: 'Poppins', sans-serif;
+        width: 140px;
+        text-align: right;
+        pointer-events: none;
+        min-width: 100px;
+        max-width: 160px;
+      }
+    }
+  }
+
+  .bill-payment {
+    flex: 1 1 320px;
+    min-width: 280px;
+    max-width: 400px;
+    width: 100%;
+    background: #fff;
+    border-radius: 16px;
+    padding: 2.5rem 2rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+
+    .payment-title {
+      color: #d72660;
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      text-align: center;
+      width: 100%;
+    }
+
+    .qr-list {
+      display: flex;
+      gap: 1.5rem;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+      width: 100%;
+
+      .qr-img {
+        width: 110px;
+        height: 110px;
+        object-fit: contain;
+        border-radius: 8px;
+        background: #f7f2f4;
+        border: 1px solid #eee;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+      }
+    }
+
+    .payment-note {
+      color: #d72660;
+      font-size: 1rem;
+      text-align: center;
+      margin-bottom: 1.5rem;
+      font-style: italic;
+      width: 100%;
+    }
+
+    .back-btn {
+      margin-top: 1.5rem;
+      padding: 0.8rem 2.5rem;
+      background: #bdbdbd;
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+      width: 100%;
+      max-width: 200px;
+      &:hover {
+        background: #888;
+      }
+    }
+  }
+
+  @media (max-width: 900px) {
+    .bill-content {
+      flex-direction: column;
+      gap: 2rem;
+      max-width: 98vw;
+    }
+    .bill-details, .bill-payment {
+      max-width: 100%;
+      min-width: unset;
+      width: 100%;
+      padding: 1.5rem 1rem;
+    }
+    h1, h2, .bill-header {
+      max-width: 98vw;
+    }
+  }
+
+  @media (max-width: 600px) {
+    padding: 1rem 0 2rem 0;
+    .bill-details, .bill-payment {
+      padding: 1rem 0.5rem;
+    }
+    .bill-header, h1, h2 {
+      font-size: 1.1rem;
+      padding-left: 0.5rem;
+    }
+  }
+} 

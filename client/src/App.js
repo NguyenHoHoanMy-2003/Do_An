@@ -10,6 +10,9 @@ import ContractListPage from "./pages/ContractListPage";
 import FormContracts from "./pages/FormContracts";
 import PayBill from "./pages/PayBill";
 import InfoManagement from "./pages/InfoManagement";
+import MyContracts from "./pages/MyContracts";
+import PaymentHistory from "./pages/PaymentHistory";
+import PayBillRenter from "./pages/PayBillRenter";
 
 function App() {
   return (
@@ -27,6 +30,9 @@ function App() {
           <Route path="/contract-form" element={<FormContracts />} />
           <Route path="/paybill" element={<PayBill />} />
           <Route path="/info" element={<InfoManagement />} />
+          <Route path="/my-contracts" element={<MyContracts />} />
+          <Route path="/my-payments" element={<PaymentHistory />} />
+          <Route path="/paybill-renter" element={<PayBillRenter />} />
         </Routes>
       </BrowserRouter>
     </div>

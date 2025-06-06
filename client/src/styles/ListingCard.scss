@@ -20,7 +20,7 @@
       display: flex;
       transition: transform 0.5s ease;
 
-      .listing-slide {
+      .slide {
         position: relative;
         flex: 0 0 100%;
         width: 100%;
@@ -87,77 +87,5 @@
     cursor: pointer;
     z-index: 999;
     background: none;
-  }
-}
-
-.popup-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.7);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 10000;
-}
-
-.popup-content {
-  background-color: white;
-  padding: 20px;
-  border-radius: 10px;
-  max-width: 500px;
-  max-height: 80vh;
-  overflow-y: auto;
-  position: relative;
-
-  h2 {
-    margin-top: 0;
-  }
-
-  form div {
-    margin-bottom: 10px;
-  }
-  form label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-  }
-  form input[type="text"] {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
-  }
-  form input[type="text"] + input[type="text"] {
-    margin-left: 5px;
-    width: auto;
-  }
-  form input[type="text"]:first-child:not([placeholder="Số CCCD"]) {
-    margin-left: 0;
-    width: 100%;
-  }
-
-  button[type="submit"] {
-    background-color: #007bff;
-    color: white;
-    padding: 10px 15px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-    margin-top: 10px;
-  }
-
-  button:last-child:not([type="submit"]) {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: none;
-    border: none;
-    font-size: 20px;
-    cursor: pointer;
   }
 }

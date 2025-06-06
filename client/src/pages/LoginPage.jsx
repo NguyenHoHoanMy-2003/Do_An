@@ -80,8 +80,9 @@ const LoginPage = () => {
         console.log("✅ result.user:", result.user); // 👈 thêm dòng này để kiểm tra
         dispatch(setLogin({
           user: {
-            id_user: result.user?.id_user,   // 👈 đảm bảo tồn tại
+            id_user: result.user?.id_user,
             name: result.user?.name,
+            role: result.user?.role, // Thêm dòng này để lưu role vào redux
           },
           token: result.token
         }));

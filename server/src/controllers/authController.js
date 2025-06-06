@@ -52,6 +52,7 @@ const loginUser = async (req, res) => {
         id_user: user.id_user,
         name: user.name,
         phone: user.phone,
+        role: user.role,
       },
     });
   } catch (err) {

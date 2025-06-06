@@ -180,12 +180,25 @@ const Navbar = () => {
                 <Link to="/login">Log In</Link>
                 <Link to="/register">Sign In</Link>
               </>
-            ) : (
+            ) : user.role === 'host' ? (
               <>
                 <Link to="/info">Info Management</Link>
                 <Link to="/contracts">Contract List</Link>
                 <Link to="/paybill">Pay Bill</Link>
                 <Link to="/create-listing">Create Listing</Link>
+                <Link
+                  to="/login"
+                  onClick={() => dispatch(setLogout())}
+                >
+                  Log Out
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link to="/info">Info Management</Link>
+                <Link to="/my-contracts">My Contracts</Link>
+                <Link to="/my-payments">Payment History</Link>
+                <Link to="/paybill-renter">Pay Bill</Link>
                 <Link
                   to="/login"
                   onClick={() => dispatch(setLogout())}

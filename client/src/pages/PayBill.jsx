@@ -8,6 +8,8 @@ const PayBill = () => {
   const [paymentFilter, setPaymentFilter] = useState('all');
   const [showModal, setShowModal] = useState(false);
   const [selectedPayment, setSelectedPayment] = useState(null);
+  const [showInputModal, setShowInputModal] = useState(false);
+  const [readings, setReadings] = useState({});
 
   const paymentData = [
     { 
@@ -79,6 +81,39 @@ const PayBill = () => {
     setSelectedPayment(null);
   };
 
+  const openInputModal = () => {
+    const initialReadings = {};
+    paymentData.forEach(payment => {
+      initialReadings[payment.room] = {
+        water: '',
+        electricity: ''
+      };
+    });
+    setReadings(initialReadings);
+    setShowInputModal(true);
+  };
+
+  const closeInputModal = () => {
+    setShowInputModal(false);
+    setReadings({});
+  };
+
+  const handleReadingChange = (room, type, value) => {
+    setReadings(prev => ({
+      ...prev,
+      [room]: {
+        ...prev[room],
+        [type]: value
+      }
+    }));
+  };
+
+  const handleUpdateReadings = () => {
+    console.log("Updating readings:", readings);
+    alert("Chức năng cập nhật đang được phát triển!");
+    closeInputModal();
+  };
+
   const calculateTotal = (payment) => {
     const servicesTotal = payment.services.reduce((sum, service) => sum + service.price, 0);
     return payment.price + servicesTotal;
@@ -87,7 +122,7 @@ const PayBill = () => {
   return (
     <div>
       <Navbar />
-      <div className={`paybil-container ${showModal ? 'modal-open' : ''}`}>
+      <div className={`paybil-container ${showModal || showInputModal ? 'modal-open' : ''}`}>
         <div className="button-group">
           <button 
             className={activeTab === 'payment' ? 'active' : ''}
@@ -100,6 +135,12 @@ const PayBill = () => {
             onClick={() => setActiveTab('service')}
           >
             Service
+          </button>
+          <button
+            className="enter-data-btn"
+            onClick={openInputModal}
+          >
+            Enter Data
           </button>
         </div>
 
@@ -259,6 +300,48 @@ const PayBill = () => {
               </div>
               <div className="modal-actions">
                 <button onClick={closeModal} className="btn">Close</button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {showInputModal && (
+          <div className="modal-overlay">
+            <div className="modal">
+              <h3>Nhập chỉ số điện nước</h3>
+              <table className="input-readings-table">
+                <thead>
+                  <tr>
+                    <th>Phòng</th>
+                    <th>Nước(số)</th>
+                    <th>Điện(số)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {paymentData.map(payment => (
+                    <tr key={payment.room}>
+                      <td>{payment.room}</td>
+                      <td>
+                        <input
+                          type="number"
+                          value={readings[payment.room]?.water || ''}
+                          onChange={(e) => handleReadingChange(payment.room, 'water', e.target.value)}
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="number"
+                          value={readings[payment.room]?.electricity || ''}
+                          onChange={(e) => handleReadingChange(payment.room, 'electricity', e.target.value)}
+                        />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <div className="modal-actions">
+                <button onClick={handleUpdateReadings} className="btn primary">Cập nhật</button>
+                <button onClick={closeInputModal} className="btn">Hủy</button>
               </div>
             </div>
           </div>
