@@ -1,8 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import "../styles/FormContracts.scss";
 import Navbar from "../components/Navbar";
+import { useLocation } from 'react-router-dom';
 
 function FormContracts() {
+  const location = useLocation();
+  const contractData = location.state?.contractData;
+
   const [formData, setFormData] = useState({
     nameA: "",
     yearA: "",
@@ -18,10 +22,10 @@ function FormContracts() {
     placeIssueB: "",
     addressB: "",
     phoneB: "",
-    roomAddress: "",
+    roomAddress: contractData?.room || "",
     duration: "",
-    rentStartDate: "",
-    price: "",
+    rentStartDate: contractData?.startDate || "",
+    price: contractData?.price || "",
     priceText: "",
     payDate: "",
     deposit: "",
