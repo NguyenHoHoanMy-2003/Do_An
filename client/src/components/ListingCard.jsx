@@ -2,6 +2,7 @@ import { useState } from "react";
 import "../styles/ListingCard.scss";
 import { ArrowForwardIos, ArrowBackIosNew } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
+import RoomDetailPopup from "./RoomDetailPopup";
 
 const ListingCard = ({ post }) => {
     const _listingId = post.id_post || "";
@@ -15,6 +16,8 @@ const ListingCard = ({ post }) => {
     const _listingPhotoPaths = post.room?.images?.map(img => img.image_url) || [];
 
     const [currentIndex, setCurrentIndex] = useState(0);
+    const [showPopup, setShowPopup] = useState(false); // State để điều khiển popup
+
     const navigate = useNavigate();
 
     const goToPrevSlide = (e) => {
@@ -26,9 +29,14 @@ const ListingCard = ({ post }) => {
         e.stopPropagation();
         setCurrentIndex(_listingPhotoPaths.length > 0 ? (currentIndex + 1) % _listingPhotoPaths.length : 0);
     };
+    const handleCardClick = () => {
+        // Không chuyển hướng, thay vào đó mở popup
+        // navigate(`/properties/${_listingId}`); // Comment out hoặc xóa dòng này
+        setShowPopup(true);
+    };
 
     return (
-        <div className="listing-card" onClick={() => navigate(`/properties/${_listingId}`)}>
+        <div className="listing-card" onClick={handleCardClick}>
             <div className="slider-container">
                 <div className="slider" style={{ transform: `translateX(-${currentIndex * 100}%)` }}>
                     {Array.isArray(_listingPhotoPaths) && _listingPhotoPaths.length > 0 ? (
@@ -60,6 +68,13 @@ const ListingCard = ({ post }) => {
             <p>Phòng: {_roomName}</p>
             <p>Loại: {_category}</p>
             <p>Giá: {_price}</p>
+                 {/* Render Popup khi showPopup là true */}
+            {showPopup && (
+                <RoomDetailPopup
+                    post={post} // Truyền toàn bộ dữ liệu post
+                    onClose={() => setShowPopup(false)} // Hàm đóng popup
+                />
+            )}
         </div>
     );
 };

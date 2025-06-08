@@ -98,6 +98,21 @@
       font-size: 12px;
       text-align: center;
     }
+
+    // Link "Recover Password"
+    .recover-password {
+      align-self: flex-end;
+      color: white;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      margin-top: -10px; // Điều chỉnh khoảng cách với button
+      margin-bottom: 10px; // Điều chỉnh khoảng cách với button
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
   }
 
   &_links {
@@ -121,6 +136,51 @@
 
       &:last-child {
         text-align: right; // Căn phải cho link cuối cùng
+      }
+    }
+  }
+
+  // New styles for OR divider and social icons
+  &_or {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    margin: 20px 0;
+
+    &_divider {
+      flex-grow: 1;
+      border: none;
+      border-top: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    &_text {
+      color: white;
+      margin: 0 10px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+  }
+
+  &_socials {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 20px;
+
+    &_item {
+      width: 50px;
+      height: 50px;
+      background-color: white;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      box-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+
+      img {
+        width: 30px;
+        height: 30px;
       }
     }
   }
