@@ -94,6 +94,22 @@ const RegisterPage = () => {
           <button type="submit">Register</button>
           {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
         </form>
+
+        <div className="register_or">
+          <hr className="register_or_divider" />
+          <span className="register_or_text">OR</span>
+          <hr className="register_or_divider" />
+        </div>
+
+        <div className="register_socials">
+          <div className="register_socials_item">
+            <img src="/assets/google.png" alt="Google" />
+          </div>
+          <div className="register_socials_item">
+            <img src="/assets/Facebook-icon-1.png" alt="Facebook" />
+          </div>
+        </div>
+
         <div className="register_links">
           <a href="/login">Already have an account? Log in here</a>
         </div>

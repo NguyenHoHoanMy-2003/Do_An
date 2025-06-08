@@ -127,6 +127,22 @@ const LoginPage = () => {
           <button name ="login_button" type="submit">Đăng nhập</button>
           {serverError && <p style={{ color: "red" }}>{serverError}</p>}
         </form>
+
+        <div className="login_or">
+          <hr className="login_or_divider" />
+          <span className="login_or_text">OR</span>
+          <hr className="login_or_divider" />
+        </div>
+
+        <div className="login_socials">
+          <div className="login_socials_item">
+            <img src="/assets/google.png" alt="Google" />
+          </div>
+          <div className="login_socials_item">
+            <img src="/assets/Facebook-icon-1.png" alt="Facebook" />
+          </div>
+        </div>
+
         <div className="login_links">
           <a href="/">Main page</a>
             <a href="/register">Don't have an account? Sign up here</a>
