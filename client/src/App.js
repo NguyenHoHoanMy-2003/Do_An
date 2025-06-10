@@ -13,6 +13,7 @@ import InfoManagement from "./pages/InfoManagement";
 import MyContracts from "./pages/MyContracts";
 import PaymentHistory from "./pages/PaymentHistory";
 import PayBillRenter from "./pages/PayBillRenter";
+import ListRoom from "./pages/ListRoom";
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
           <Route path="/my-contracts" element={<MyContracts />} />
           <Route path="/my-payments" element={<PaymentHistory />} />
           <Route path="/paybill-renter" element={<PayBillRenter />} />
+          <Route path="/list-room" element={<ListRoom />} />
         </Routes>
       </BrowserRouter>
     </div>
