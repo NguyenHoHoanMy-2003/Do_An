@@ -183,9 +183,11 @@ const Navbar = () => {
             ) : user.role === 'host' ? (
               <>
                 <Link to="/info">Info Management</Link>
+                <Link to="/create-listing">Create Listing</Link>
                 <Link to="/contracts">Contract List</Link>
                 <Link to="/paybill">Pay Bill</Link>
-                <Link to="/create-listing">Create Listing</Link>
+                <Link to="/list-room">List Room</Link>
+                
                 <Link
                   to="/login"
                   onClick={() => dispatch(setLogout())}
