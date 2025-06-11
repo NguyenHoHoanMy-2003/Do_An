@@ -5,17 +5,31 @@ const cors = require('cors')
 const initRoutes = require('./src/routes')
 const connectDatabase = require('./src/config/connectDatabase')
 const path = require('path');
+const session = require('express-session');
+const passport = require('passport');
 
+require('./src/auth/google');
+require('./src/auth/facebook');
 
 const app = express()
 
 app.use(cors({
     origin: process.env.CLIENT_URL,
+    credentials: true,
     methods: ["POST", "GET", "PUT", "DELETE"]
 }))
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use('/uploads', express.static(path.join(__dirname, 'src', 'uploads')));
+
+app.use(session({
+  secret: "your-secret",
+  resave: false,
+  saveUninitialized: false,
+}))
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 initRoutes(app)
 connectDatabase()

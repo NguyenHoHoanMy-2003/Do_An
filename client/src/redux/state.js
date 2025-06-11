@@ -1,10 +1,10 @@
-// state.js
+// redux/state.js
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  user: null,   
+  user: null,
   token: null,
-  listings: [],  // Thay đổi từ null thành mảng rỗng
+  listings: [], // Luôn là mảng
 };
 
 export const userSlice = createSlice({
@@ -12,18 +12,17 @@ export const userSlice = createSlice({
   initialState,
   reducers: {
     setLogin: (state, action) => {
-      state.user = action.payload.user;      
-      state.token = action.payload.token;    
+      state.user = action.payload.user || null;
+      state.token = action.payload.token || ""; // Hỗ trợ cả token hoặc cookie
     },
     setLogout: (state) => {
       state.user = null;
       state.token = null;
-      state.listings = [];  // Reset về mảng rỗng thay vì null
+      state.listings = [];
     },
     setListings: (state, action) => {
-      // Đảm bảo listings luôn là mảng
-      state.listings = Array.isArray(action.payload.listings) 
-        ? action.payload.listings 
+      state.listings = Array.isArray(action.payload.listings)
+        ? action.payload.listings
         : [];
     },
     setTripList: (state, action) => {

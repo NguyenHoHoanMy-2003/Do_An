@@ -14,6 +14,7 @@ import MyContracts from "./pages/MyContracts";
 import PaymentHistory from "./pages/PaymentHistory";
 import PayBillRenter from "./pages/PayBillRenter";
 import ListRoom from "./pages/ListRoom";
+import SocialCallback from "./pages/SocialCallback"; // 👈 THÊM DÒNG NÀY
 
 function App() {
   return (
@@ -35,6 +36,7 @@ function App() {
           <Route path="/my-payments" element={<PaymentHistory />} />
           <Route path="/paybill-renter" element={<PayBillRenter />} />
           <Route path="/list-room" element={<ListRoom />} />
+          <Route path="/social/callback" element={<SocialCallback />} /> {/* 👈 THÊM ROUTE NÀY */}
         </Routes>
       </BrowserRouter>
     </div>

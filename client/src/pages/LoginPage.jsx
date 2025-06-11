@@ -6,7 +6,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { FaEye, FaEyeSlash } from "react-icons/fa"; // 👈 Thêm icon con mắt
 import { useSelector } from "react-redux";
 
-
 const LoginPage = () => {
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
@@ -22,48 +21,48 @@ const LoginPage = () => {
   const togglePasswordVisibility = () => {
     setShowPassword(prev => !prev);
   };
-    
-    const validateInputs = () => {
-      const newErrors = {};
-  
-      if (!phone.trim()) {
-        newErrors.phone = "Số điện thoại không được để trống";
-      }
-      if (!password.trim()) {
-        newErrors.password = "Mật khẩu không được để trống";
-      }
-  
-      const phoneRegex = /^[0-9]{9,12}$/;
-      const passwordRegex = /^[a-zA-Z0-9]+$/;
-  
-      if (phone && !phoneRegex.test(phone)) {
-        newErrors.phone = "Số điện thoại không hợp lệ";
-      }
-      if (password && !passwordRegex.test(password)) {
-        newErrors.password = "Mật khẩu không được chứa ký tự đặc biệt";
-      }
-  
-      if (/\s/.test(phone)) {
-        newErrors.phone = "Số điện thoại không được chứa khoảng trắng";
-      }
-      if (/\s/.test(password)) {
-        newErrors.password = "Mật khẩu không được chứa khoảng trắng";
-      }
-  
-      if (password.length < 6) {
-        newErrors.password = "Mật khẩu phải có ít nhất 6 ký tự";
-      }
-  
-      setErrors(newErrors);
-      return Object.keys(newErrors).length === 0;
-    };
-  
-    const handleSubmit = async (e) => {
-      e.preventDefault();
-      setServerError("");
-  
-      if (!validateInputs()) return;
-  
+
+  const validateInputs = () => {
+    const newErrors = {};
+
+    if (!phone.trim()) {
+      newErrors.phone = "Số điện thoại không được để trống";
+    }
+    if (!password.trim()) {
+      newErrors.password = "Mật khẩu không được để trống";
+    }
+
+    const phoneRegex = /^[0-9]{9,12}$/;
+    const passwordRegex = /^[a-zA-Z0-9]+$/;
+
+    if (phone && !phoneRegex.test(phone)) {
+      newErrors.phone = "Số điện thoại không hợp lệ";
+    }
+    if (password && !passwordRegex.test(password)) {
+      newErrors.password = "Mật khẩu không được chứa ký tự đặc biệt";
+    }
+
+    if (/\s/.test(phone)) {
+      newErrors.phone = "Số điện thoại không được chứa khoảng trắng";
+    }
+    if (/\s/.test(password)) {
+      newErrors.password = "Mật khẩu không được chứa khoảng trắng";
+    }
+
+    if (password.length < 6) {
+      newErrors.password = "Mật khẩu phải có ít nhất 6 ký tự";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setServerError("");
+
+    if (!validateInputs()) return;
+
     try {
       const response = await fetch("http://localhost:5001/auth/login", {
         method: "POST",
@@ -94,6 +93,14 @@ const LoginPage = () => {
       setServerError("Lỗi kết nối đến server.");
       console.error("Login failed", err.message);
     }
+  };
+
+  const handleGoogleLogin = () => {
+    window.location.href = "http://localhost:5001/auth/google";
+  };
+
+  const handleFacebookLogin = () => {
+    window.location.href = "http://localhost:5001/auth/facebook";
   };
 
   return (
@@ -135,18 +142,18 @@ const LoginPage = () => {
         </div>
 
         <div className="login_socials">
-          <div className="login_socials_item">
+          <div className="login_socials_item" onClick={handleGoogleLogin}>
             <img src="/assets/google.png" alt="Google" />
           </div>
-          <div className="login_socials_item">
+          <div className="login_socials_item" onClick={handleFacebookLogin}>
             <img src="/assets/Facebook-icon-1.png" alt="Facebook" />
           </div>
         </div>
 
         <div className="login_links">
           <a href="/">Main page</a>
-            <a href="/register">Don't have an account? Sign up here</a>
-          </div>
+          <a href="/register">Don't have an account? Sign up here</a>
+        </div>
       </div>
     </div>
   );

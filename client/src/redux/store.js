@@ -1,4 +1,4 @@
-// store.js
+// redux/store.js
 import { configureStore, combineReducers } from "@reduxjs/toolkit";
 import {
   persistStore,
@@ -12,17 +12,17 @@ import {
 } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 
-import userReducer from "./state";  // userSlice reducer
+import userReducer from "./state";
 
 const rootReducer = combineReducers({
-  user: userReducer,  // 👈 đặt tên slice rõ ràng
+  user: userReducer,
 });
 
 const persistConfig = {
   key: "root",
   version: 1,
   storage,
-  whitelist: ["user"], // 👈 chỉ persist phần `user`
+  whitelist: ["user"],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
