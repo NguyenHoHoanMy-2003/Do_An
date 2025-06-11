@@ -1,8 +1,8 @@
 import { useState } from "react";
 import "../styles/ListingCard.scss";
 import { ArrowForwardIos, ArrowBackIosNew } from "@mui/icons-material";
-/* import { useNavigate } from "react-router-dom"; */
-/* import RoomDetailPopup from "./RoomDetailPopup"; */
+ import { useNavigate } from "react-router-dom"; 
+ import RoomDetailPopup from "./RoomDetailPopup";
 
 const ListingCard = ({ post, onOpenPopup }) => {
     const _listingId = post.id_post || "";
@@ -16,7 +16,7 @@ const ListingCard = ({ post, onOpenPopup }) => {
     const _listingPhotoPaths = post.room?.images?.map(img => img.image_url) || [];
 
     const [currentIndex, setCurrentIndex] = useState(0);
-    /* const [showPopup, setShowPopup] = useState(false); */
+     const [showPopup, setShowPopup] = useState(false);
 
     const goToPrevSlide = (e) => {
         e.stopPropagation();
@@ -31,7 +31,7 @@ const ListingCard = ({ post, onOpenPopup }) => {
     const handleCardClick = (e) => {
         e.preventDefault();
         e.stopPropagation();
-        /* setShowPopup(true); */
+        setShowPopup(true); 
         if (onOpenPopup) {
             onOpenPopup(post);
         }
@@ -73,12 +73,12 @@ const ListingCard = ({ post, onOpenPopup }) => {
                 <p>Giá: {_price}</p>
             </div>
 
-            {/* {showPopup && (
+             {showPopup && (
                 <RoomDetailPopup
                     post={post}
                     onClose={() => setShowPopup(false)}
                 />
-            )} */}
+            )} 
         </>
     );
 };
