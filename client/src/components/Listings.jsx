@@ -19,12 +19,12 @@ const Listings = () => {
         const grouped = {};
         posts.forEach((post) => {
             console.log("post:", post);
-            if (!post || !post.Property || !post.room) {
+            if (!post || !post.property || !post.room) {
                 console.log("Bị bỏ qua:", post);
                 return;
             }
             const propertyId = post.property_id || "unknown";
-            const propertyName = post.Property?.name_bd || "Unknown";
+            const propertyName = post.property?.name_bd || "Unknown";
             const floorId = post.room?.floor_id || "no-floor";
             const floorName = post.room?.floor?.name || "Không rõ tầng";
             if (!grouped[propertyId]) {

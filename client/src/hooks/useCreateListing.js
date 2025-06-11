@@ -481,10 +481,22 @@ const useCreateListing = () => {
       alert("Không tìm thấy ID của tầng!");
       return;
     }
+
+    // Thêm xác nhận trước khi xóa
+    const confirmDelete = window.confirm(`Bạn có chắc chắn muốn xóa tầng "${floorName}"? Hành động này sẽ xóa tất cả các phòng trong tầng.`);
+    if (!confirmDelete) return;
+
     try {
       const response = await fetch(`http://localhost:5001/buildings/floors/${floorId}`, {
-        method: "DELETE"
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          "x-user-id": creatorId
+        }
       });
+
+      const data = await response.json();
+
       if (response.ok) {
         fetchBuildings();
         setSelectedFloor("");
@@ -495,11 +507,13 @@ const useCreateListing = () => {
             name: ""
           }
         }));
+        alert("Xóa tầng thành công!");
       } else {
-        alert("Xóa tầng thất bại!");
+        alert(data.message || "Xóa tầng thất bại!");
       }
     } catch (error) {
-      alert("Lỗi khi xóa tầng!");
+      console.error("Error deleting floor:", error);
+      alert("Lỗi khi xóa tầng: " + error.message);
     }
   };
 
@@ -510,10 +524,22 @@ const useCreateListing = () => {
         alert("Không tìm thấy ID của dãy!");
         return;
       }
+
+      // Thêm xác nhận trước khi xóa
+      const confirmDelete = window.confirm(`Bạn có chắc chắn muốn xóa dãy "${buildingName}"? Hành động này sẽ xóa tất cả các tầng và phòng trong dãy.`);
+      if (!confirmDelete) return;
+
       try {
         const response = await fetch(`http://localhost:5001/buildings/${buildingId}`, {
-          method: "DELETE"
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            "x-user-id": creatorId
+          }
         });
+
+        const data = await response.json();
+
         if (response.ok) {
           setSelectedBuilding("");
           setSelectedFloor("");
@@ -530,11 +556,13 @@ const useCreateListing = () => {
           }));
           
           fetchBuildings();
+          alert("Xóa dãy thành công!");
         } else {
-          alert("Xóa dãy thất bại!");
+          alert(data.message || "Xóa dãy thất bại!");
         }
       } catch (error) {
-        alert("Lỗi khi xóa dãy!");
+        console.error("Error deleting building:", error);
+        alert("Lỗi khi xóa dãy: " + error.message);
       }
     }
   };

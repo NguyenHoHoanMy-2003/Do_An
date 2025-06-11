@@ -10,7 +10,7 @@ module.exports = (sequelize, DataTypes) => {
       Post.belongsTo(models.Overview, { foreignKey: 'overview_id' });
       Post.belongsTo(models.District, { foreignKey: 'district_id', as: 'district' });
       Post.belongsTo(models.User, { foreignKey: 'user_id', targetKey: 'id_user' });
-      Post.belongsTo(models.Property, { foreignKey: 'property_id', as: 'Property' });
+      Post.belongsTo(models.Property, { foreignKey: 'property_id', as: 'property' });
       Post.belongsTo(models.Room, { foreignKey: 'room_id', as: 'room' });
     }
   }
