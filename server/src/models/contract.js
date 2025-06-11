@@ -5,7 +5,7 @@ const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class Contract extends Model {
     static associate(models) {
-      Contract.belongsTo(models.Room, { foreignKey: 'room_id' });
+      Contract.belongsTo(models.SubRoom, { foreignKey: 'subroom_id' });
       Contract.belongsTo(models.User, { 
         foreignKey: 'tenant_id',
         as: 'tenant' 
@@ -21,7 +21,7 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true,
       allowNull: false
     },
-    room_id: DataTypes.STRING,
+    subroom_id: DataTypes.STRING,
     tenant_id: DataTypes.STRING,
     start_date: DataTypes.DATEONLY,
     end_date: DataTypes.DATEONLY,
