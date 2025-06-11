@@ -71,7 +71,7 @@ const CreateListing = () => {
                 <div
                   className={`category ${formData.category === item.label ? "selected" : ""}`}
                   key={index}
-                  onClick={() => handleCategorySelect(item.label)}
+                  
                 >
                   <div className="category_icon">{item.icon}</div>
                   <p>{item.label}</p>
