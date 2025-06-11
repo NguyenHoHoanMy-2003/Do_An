@@ -158,19 +158,7 @@ const Navbar = () => {
           onClick={() => setDropdownMenu(!dropdownMenu)}
         >
           <Menu sx={{ color: variables.darkgray }} />
-          {user ? (
-            <img
-              src={
-                user.profileImagePath
-                  ? `http://localhost:3001/${user.profileImagePath.replace("public", "")}`
-                  : "/assets/default-profile.jpg"
-              }
-              alt="profile photo"
-              style={{ objectFit: "cover", borderRadius: "50%" }}
-            />
-          ) : (
-            <Person sx={{ color: variables.darkgray }} />
-          )}
+          <Person sx={{ color: variables.darkgray }} />
         </button>
 
         {dropdownMenu && (
