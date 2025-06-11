@@ -1,9 +1,26 @@
-// controllers/postController.js
+'use strict';
 const {
   Post, Attribute, Category, Label, Overview,
-  District, User, Property, Room, Image, Floor, City
+  District, User, Property, Room, Image, Floor, City, SubRoom
 } = require("../models");
 const { v4: uuidv4 } = require("uuid");
+
+// Hàm tách tên phòng thành danh sách các phòng con
+const parseRoomName = (name) => {
+  if (!name) return [];
+  name = name.trim();
+  if (name.includes('-')) {
+    const [start, end] = name.split('-').map(Number);
+    if (!isNaN(start) && !isNaN(end) && start <= end) {
+      return Array.from({ length: end - start + 1 }, (_, i) => (start + i).toString());
+    }
+  } else if (name.includes(',')) {
+    return name.split(',').map(item => item.trim()).filter(item => item);
+  } else if (name !== '') {
+    return [name];
+  }
+  return [];
+};
 
 // ================================
 // API: Tạo bài đăng mới
@@ -13,7 +30,7 @@ exports.createPost = async (req, res) => {
     // Destructure req.body để lấy creatorId trước
     const { creatorId } = req.body;
 
-    //  Kiểm tra quyền của người dùng (chỉ host mới được phép tạo bài đăng)
+    // Kiểm tra quyền của người dùng (chỉ host mới được phép tạo bài đăng)
     const user = await User.findByPk(creatorId);
     if (!user || user.role !== 'host') {
       return res.status(403).json({
@@ -33,7 +50,7 @@ exports.createPost = async (req, res) => {
       name
     } = req.body;
 
-    // B1: Tạo category nếu chưa có
+    // B1: Tạo category
     const category = await Category.findOrCreate({
       where: { value: type },
       defaults: {
@@ -78,36 +95,32 @@ exports.createPost = async (req, res) => {
     // B4: Tìm hoặc tạo building (property)
     let property = null;
     if (buildingName) {
-      // Tìm building hiện có
       property = await Property.findOne({
         where: { name_bd: buildingName }
       });
 
-      // Nếu chưa có, tạo mới
       if (!property) {
-        // Kiểm tra các trường cần thiết cho building mới
-        if (!streetAddress || !city || !district) {
-             return res.status(400).json({ message: "Địa chỉ (Street Address, City, District) là bắt buộc khi thêm tòa nhà mới." });
-        }
-        // Kiểm tra lại creatorId có tồn tại không
-        if (!creatorId) {
-            return res.status(401).json({ message: "User ID không hợp lệ." });
-        }
-
         property = await Property.create({
           id_property: uuidv4(),
-          name_bd: buildingName, // Đã đảm bảo có giá trị ở đây
+          name_bd: buildingName,
           host_id: creatorId,
           street_address: streetAddress,
           district_id: districtRecord?.id || null,
           city_id: cityRecord?.id || null,
-          description: description, // Sử dụng description từ client
-          category_id: category[0].id // Có thể cần xem lại logic category cho building
+          description: description,
+          category_id: category[0].id
         });
       }
     } else {
-      // Nếu không có buildingName, trả về lỗi vì name_bd là NOT NULL
-      return res.status(400).json({ message: "Tên tòa nhà (buildingName) là bắt buộc." });
+      property = await Property.create({
+        id_property: uuidv4(),
+        host_id: creatorId,
+        street_address: streetAddress,
+        district_id: districtRecord?.id || null,
+        city_id: cityRecord?.id || null,
+        description: title,
+        category_id: category[0].id
+      });
     }
 
     // B5: Tìm hoặc tạo floor
@@ -165,7 +178,7 @@ exports.createPost = async (req, res) => {
       });
     }
 
-    // B9: Room
+    // B9: Room chung
     const room = await Room.create({
       id_room: uuidv4(),
       property_id: property.id_property,
@@ -175,13 +188,29 @@ exports.createPost = async (req, res) => {
       bedroom_count: bedroomCount,
       bed_count: bedCount,
       bathroom_count: bathroomCount,
-      amenities: JSON.stringify(amenities), //  lưu vào DB dạng chuỗi
+      amenities: JSON.stringify(amenities),
       description,
-      status: "available",
       category_id: category[0].id
     });
 
-    // B10: Image
+    // B10: Tạo các phòng con trong sub_rooms
+    const subRoomNames = parseRoomName(name);
+    if (subRoomNames.length > 0) {
+      await Promise.all(
+        subRoomNames.map(subRoomName =>
+          SubRoom.create({
+            id: uuidv4(),
+            room_id: room.id_room,
+            name: subRoomName,
+            status: 'available',
+            created_at: new Date(),
+            updated_at: new Date()
+          })
+        )
+      );
+    }
+
+    // B11: Image
     if (req.files && req.files.length > 0) {
       await Promise.all(
         req.files.map(file =>
@@ -194,7 +223,7 @@ exports.createPost = async (req, res) => {
       );
     }
 
-    // B11: Post
+    // B12: Post
     const post = await Post.create({
       id_post: uuidv4(),
       title,
@@ -219,8 +248,20 @@ exports.createPost = async (req, res) => {
         { model: Overview },
         { model: District, as: 'district', include: [{ model: City, as: 'city' }] },
         { model: User, attributes: ['id_user', 'name'] },
-        { model: Room, as: 'room', include: [{ model: Floor, as: 'floor' }, { model: Image, as: 'images' }] },
-        { model: Property, as: 'Property', include: [{ model: District, as: 'district', include: [{ model: City, as: 'city' }] }] }
+        { 
+          model: Room, 
+          as: 'room',
+          include: [
+            { model: Floor, as: 'floor' }, 
+            { model: Image, as: 'images' },
+            { model: SubRoom, as: 'subRooms' }
+          ]
+        },
+        { 
+          model: Property,
+          as: 'property', 
+          include: [{ model: District, as: 'district', include: [{ model: City, as: 'city' }] }]
+        }
       ]
     });
 
@@ -245,7 +286,7 @@ exports.createPost = async (req, res) => {
 
     res.status(201).json({
       message: "Post created successfully",
-      post: postData  // Trả về postData thay vì post
+      post: postData
     });
 
   } catch (error) {
@@ -267,15 +308,30 @@ exports.getPosts = async (req, res) => {
         { model: Overview },
         { model: District, as: 'district', include: [{ model: City, as: 'city' }] },
         { model: User, attributes: ['id_user', 'name'] },
-        { model: Room, as: 'room', include: [{ model: Floor, as: 'floor' }, { model: Image, as: 'images' }] },
-        { model: Property, as: 'Property', include: [
-            { model: District, as: 'district', include: [{ model: City, as: 'city' }] }
+        { 
+          model: Room, 
+          as: 'room',
+          include: [
+            { model: Floor, as: 'floor' },
+            { model: Image, as: 'images' },
+            { model: SubRoom, as: 'subRooms' }
           ]
-        }
+        },
+        {
+          model: Property,
+          as: 'property', 
+          include: [
+            {
+              model: District,
+              as: 'district',
+              include: [{ model: City, as: 'city' }]
+            }
+          ]
+        },
       ]
     });
 
-    // ✅ Parse amenities from JSON string to array
+    // Parse amenities from JSON string to array
     const parsedPosts = posts.map(post => {
       if (post.room && post.room.amenities) {
         try {
@@ -343,19 +399,21 @@ exports.checkListingExists = async (req, res) => {
     }
 
     // Check if room exists
-    const roomExists = await Room.findOne({
+    const room = await Room.findOne({
       where: {
         property_id: building.id_property,
         floor_id: floor?.id || null,
         name: roomName || "Untitled Room"
-      }
+      },
+      include: [{ model: SubRoom, as: 'subRooms' }]
     });
 
     res.status(200).json({
-      exists: !!roomExists,
-      room: roomExists ? {
-        id: roomExists.id_room,
-        name: roomExists.name
+      exists: !!room,
+      room: room ? {
+        id: room.id_room,
+        name: room.name,
+        subRooms: room.subRooms
       } : null
     });
 

@@ -8,7 +8,7 @@ const ListingCard = ({ post, onOpenPopup }) => {
     const _listingId = post.id_post || "";
     const _title = post.title || "Không rõ";
     const _address = post.address || "Không rõ";
-    const _propertyName = post.Property?.name_bd || "Không rõ";
+    const _propertyName = post.property?.name_bd || "Không rõ";
     const _floorName = post.room?.floor?.name || "Không rõ";
     const _roomName = post.room?.name || "Không rõ";
     const _price = post.Attribute?.price ? `${post.Attribute.price} VND` : "Không rõ";

@@ -1,7 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const db = require("../models");
-const User = db.User;
+const User = require("../models/user"); 
 const { loginUser } = require("../controllers/authController");
 
 // Đăng ký

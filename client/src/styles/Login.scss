@@ -52,21 +52,25 @@
 
       // Trường mật khẩu có icon con mắt
       .password-field {
-        position: relative;
+        display: flex;
+        align-items: center;
         width: 100%;
 
         input {
           @extend .input-field;
-          padding-right: 40px; // chừa chỗ cho icon
+          flex: 1;
+          text-align: center;
+          padding-right: 15px;
+          margin-right: 0;
         }
 
         .eye-icon {
-          position: absolute;
-          right: 10px;
-          top: 50%;
-          transform: translateY(-50%);
+          margin-left: 0;
+          margin-right: 10px;
           cursor: pointer;
           color: white;
+          z-index: 2;
+          font-size: 18px;
         }
       }
 

@@ -163,7 +163,7 @@ const PayBill = () => {
         ...prev[room],
         [type]: value
       }
-    }));
+    }));  
   };
 
   const handleUpdateReadings = () => {
