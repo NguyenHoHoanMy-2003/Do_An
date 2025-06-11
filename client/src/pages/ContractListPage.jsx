@@ -2,9 +2,59 @@ import React, { useState, useEffect } from "react";
 import "../styles/Contracts.scss";
 import Navbar from "../components/Navbar";
 import { FaSearch, FaPrint, FaHistory } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 const ContractListPage = () => {
-  const [contracts, setContracts] = useState([]);
+  const navigate = useNavigate();
+  const [contracts, setContracts] = useState([
+    // Pending contracts
+    {
+      id: 1,
+      room: "101",
+      tenantName: "Nguyễn Văn A",
+      status: "pending",
+      startDate: "2024-03-01",
+      endDate: "2024-09-01",
+      price: 3000000
+    },
+    {
+      id: 2,
+      room: "102",
+      tenantName: "Trần Thị B",
+      status: "pending",
+      startDate: "2024-03-15",
+      endDate: "2024-09-15",
+      price: 3500000
+    },
+    // Confirmed contracts
+    {
+      id: 3,
+      room: "201",
+      tenantName: "Lê Văn C",
+      status: "confirmed",
+      startDate: "2024-01-01",
+      endDate: "2024-07-01",
+      price: 4000000
+    },
+    {
+      id: 4,
+      room: "202",
+      tenantName: "Phạm Thị D",
+      status: "confirmed",
+      startDate: "2024-02-01",
+      endDate: "2024-08-01",
+      price: 3800000
+    },
+    {
+      id: 5,
+      room: "301",
+      tenantName: "Hoàng Văn E",
+      status: "confirmed",
+      startDate: "2024-01-15",
+      endDate: "2024-07-15",
+      price: 4200000
+    }
+  ]);
   const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [selectedContract, setSelectedContract] = useState(null);
@@ -73,6 +123,10 @@ const ContractListPage = () => {
     closeModal();
   };
 
+  const handleDetailClick = (contract) => {
+    navigate('/contract-form', { state: { contractData: contract } });
+  };
+
   return (
     <div>
       <Navbar />
@@ -126,7 +180,12 @@ const ContractListPage = () => {
                         <span className="status pending">Pending</span>
                       </td>
                       <td>
-                        <button className="btn small">Detail</button>
+                        <button 
+                          className="btn small" 
+                          onClick={() => handleDetailClick(c)}
+                        >
+                          Detail
+                        </button>
                       </td>
                     </tr>
                 ))}

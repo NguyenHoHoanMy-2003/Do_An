@@ -10,13 +10,19 @@ const PayBill = () => {
   const [selectedPayment, setSelectedPayment] = useState(null);
   const [showInputModal, setShowInputModal] = useState(false);
   const [readings, setReadings] = useState({});
+  const [selectedMonth, setSelectedMonth] = useState(new Date().toISOString().slice(0, 7)); // YYYY-MM
+  const [monthlyReadingsData, setMonthlyReadingsData] = useState({}); // { 'YYYY-MM': { 'roomCode': { water: 'val', electricity: 'val' } } }
+  const [selectedProperty, setSelectedProperty] = useState('all');
+  const [selectedFloor, setSelectedFloor] = useState('all');
 
   const paymentData = [
     { 
       code: 'CT001', 
-      room: '101', 
+      room: 'A-101', 
       tenant: 'Nguyen Van A', 
       price: 2000000,
+      propertyId: 'A',
+      floorId: '1',
       services: [
         { name: 'Electricity', price: 500000 },
         { name: 'Water', price: 200000 },
@@ -26,9 +32,11 @@ const PayBill = () => {
     },
     { 
       code: 'CT002', 
-      room: '102', 
+      room: 'A-102', 
       tenant: 'Tran Thi B', 
       price: 1800000,
+      propertyId: 'A',
+      floorId: '1',
       services: [
         { name: 'Electricity', price: 450000 },
         { name: 'Water', price: 150000 },
@@ -36,7 +44,53 @@ const PayBill = () => {
       ],
       state: 'Unpaid' 
     },
+    { 
+        code: 'CT003', 
+        room: 'B-201', 
+        tenant: 'Le Van C', 
+        price: 2200000,
+        propertyId: 'B',
+        floorId: '2',
+        services: [
+          { name: 'Electricity', price: 600000 },
+          { name: 'Water', price: 250000 },
+          { name: 'Internet', price: 300000 }
+        ],
+        state: 'Paid' 
+    },
+    { 
+        code: 'CT004', 
+        room: 'B-202', 
+        tenant: 'Pham Van D', 
+        price: 2100000,
+        propertyId: 'B',
+        floorId: '2',
+        services: [
+          { name: 'Electricity', price: 550000 },
+          { name: 'Water', price: 200000 },
+          { name: 'Internet', price: 300000 }
+        ],
+        state: 'Unpaid' 
+    },
   ];
+
+  const staticProperties = [
+    { id: 'all', name: 'Tất cả Dãy' },
+    { id: 'A', name: 'Dãy A' },
+    { id: 'B', name: 'Dãy B' },
+  ];
+
+  const staticFloors = [
+    { id: 'all', name: 'Tất cả Tầng', propertyId: 'all' },
+    { id: '1', name: 'Tầng 1', propertyId: 'A' },
+    { id: '2', name: 'Tầng 2', propertyId: 'B' },
+    { id: '3', name: 'Tầng 3', propertyId: 'B' },
+  ];
+
+  const filteredFloors = staticFloors.filter(floor => 
+    selectedProperty === 'all' || floor.propertyId === selectedProperty || floor.propertyId === 'all'
+  );
+
 
   const [services, setServices] = useState([
     { id: 1, service: 'Electricity', price: '500000' },
@@ -82,11 +136,13 @@ const PayBill = () => {
   };
 
   const openInputModal = () => {
+    // Load existing readings for the selected month, or initialize empty
+    const currentMonthReadings = monthlyReadingsData[selectedMonth] || {};
     const initialReadings = {};
     paymentData.forEach(payment => {
       initialReadings[payment.room] = {
-        water: '',
-        electricity: ''
+        water: currentMonthReadings[payment.room]?.water || '',
+        electricity: currentMonthReadings[payment.room]?.electricity || ''
       };
     });
     setReadings(initialReadings);
@@ -96,6 +152,8 @@ const PayBill = () => {
   const closeInputModal = () => {
     setShowInputModal(false);
     setReadings({});
+    setSelectedProperty('all'); // Reset filters when closing
+    setSelectedFloor('all');
   };
 
   const handleReadingChange = (room, type, value) => {
@@ -105,11 +163,17 @@ const PayBill = () => {
         ...prev[room],
         [type]: value
       }
-    }));
+    }));  
   };
 
   const handleUpdateReadings = () => {
-    console.log("Updating readings:", readings);
+    // Save current readings for the selected month
+    setMonthlyReadingsData(prev => ({
+      ...prev,
+      [selectedMonth]: readings
+    }));
+
+    console.log(`Updating readings for ${selectedMonth}:`, readings);
     alert("Chức năng cập nhật đang được phát triển!");
     closeInputModal();
   };
@@ -118,6 +182,21 @@ const PayBill = () => {
     const servicesTotal = payment.services.reduce((sum, service) => sum + service.price, 0);
     return payment.price + servicesTotal;
   };
+
+  const handlePropertyChange = (e) => {
+    setSelectedProperty(e.target.value);
+    setSelectedFloor('all'); // Reset floor when property changes
+  };
+
+  const handleFloorChange = (e) => {
+    setSelectedFloor(e.target.value);
+  };
+
+  const filteredRoomsForInput = paymentData.filter(payment => {
+    const matchesProperty = selectedProperty === 'all' || payment.propertyId === selectedProperty;
+    const matchesFloor = selectedFloor === 'all' || payment.floorId === selectedFloor;
+    return matchesProperty && matchesFloor;
+  });
 
   return (
     <div>
@@ -309,6 +388,32 @@ const PayBill = () => {
           <div className="modal-overlay">
             <div className="modal">
               <h3>Nhập chỉ số điện nước</h3>
+              <div className="input-filters">
+                <select 
+                  value={selectedProperty} 
+                  onChange={handlePropertyChange}
+                  className="filter-select"
+                >
+                  {staticProperties.map(prop => (
+                    <option key={prop.id} value={prop.id}>{prop.name}</option>
+                  ))}
+                </select>
+                <select 
+                  value={selectedFloor} 
+                  onChange={handleFloorChange}
+                  className="filter-select"
+                >
+                  {filteredFloors.map(floor => (
+                    <option key={floor.id} value={floor.id}>{floor.name}</option>
+                  ))}
+                </select>
+                <input 
+                  type="month" 
+                  value={selectedMonth} 
+                  onChange={(e) => setSelectedMonth(e.target.value)}
+                  className="filter-select month-select"
+                />
+              </div>
               <table className="input-readings-table">
                 <thead>
                   <tr>
@@ -318,7 +423,7 @@ const PayBill = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {paymentData.map(payment => (
+                  {filteredRoomsForInput.map(payment => (
                     <tr key={payment.room}>
                       <td>{payment.room}</td>
                       <td>

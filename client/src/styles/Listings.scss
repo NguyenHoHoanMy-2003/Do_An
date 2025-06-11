@@ -72,7 +72,95 @@
   }
 }
 
+.featured-listings {
+  padding: 40px 60px;
+  background-color: #FBF1F4;
 
+  .featured-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+
+    h2 {
+      font-size: 28px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .view-all-btn {
+      padding: 8px 20px;
+      background-color: $pinkred;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.3s;
+
+      &:hover {
+        background-color: darken($pinkred, 10%);
+      }
+    }
+  }
+
+  .listings-slider {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+
+    .slider-btn {
+      background: white;
+      border: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      z-index: 2;
+
+      &:hover {
+        background-color: #f0f0f0;
+      }
+
+      &.prev {
+        left: 0;
+      }
+
+      &.next {
+        right: 0;
+      }
+    }
+
+    .listings-container {
+      width: 100%;
+      overflow: hidden;
+      padding: 10px 0;
+
+      .listings-track {
+        display: flex;
+        transition: transform 0.5s ease;
+        gap: 20px;
+      }
+    }
+  }
+
+  .error-message, .no-listings {
+    text-align: center;
+    width: 100%;
+    padding: 40px 0;
+    font-size: 22px;
+    color: #888;
+  }
+
+  .error-message {
+    color: red;
+  }
+}
 
 .listings {
   padding: 0 60px 120px;

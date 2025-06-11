@@ -1,0 +1,38 @@
+@import "./variables.scss";
+
+.list-room-container {
+    padding: 40px 60px;
+    background-color: #FBF1F4;
+    min-height: calc(100vh - 80px);
+
+    .list-room-header {
+        margin-bottom: 30px;
+        text-align: center;
+
+        h1 {
+            font-size: 32px;
+            font-weight: 600;
+            color: #333;
+            margin: 0;
+        }
+    }
+
+    .listings-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 30px;
+        padding: 20px 0;
+    }
+
+    .error-message, .no-listings {
+        text-align: center;
+        width: 100%;
+        padding: 40px 0;
+        font-size: 22px;
+        color: #888;
+    }
+
+    .error-message {
+        color: red;
+    }
+}
