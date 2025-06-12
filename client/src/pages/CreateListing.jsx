@@ -320,21 +320,23 @@ const CreateListing = () => {
             ))}
           </div>
           
-          <button 
-            type="button"
-            className="add_btn"
-            onClick={handleAddToList}
-          >
-            Add to List
-          </button>
-          
-          <button 
-            className="submit_btn" 
-            type="submit"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? "CREATING..." : "CREATE YOUR LISTING"}
-          </button>
+          <div className="form-actions">
+            <button 
+              type="button"
+              className="add-list"
+              onClick={handleAddToList}
+            >
+              Add to List
+            </button>
+            
+            <button 
+              className="submit-btn" 
+              type="submit"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "CREATING..." : "CREATE YOUR LISTING"}
+            </button>
+          </div>
         </form>
       </div>
       

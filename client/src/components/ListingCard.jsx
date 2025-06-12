@@ -1,10 +1,10 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import "../styles/ListingCard.scss";
 import { ArrowForwardIos, ArrowBackIosNew } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import RoomDetailPopup from "./RoomDetailPopup";
 
-const ListingCard = ({ post, onOpenPopup }) => {
+const ListingCard = ({ post, onOpenPopup, onEditListing }) => {
     const _listingId = post.id_post || "";
     const _title = post.title || "Không rõ";
     const _address = post.address || "Không rõ";
@@ -73,6 +73,7 @@ const ListingCard = ({ post, onOpenPopup }) => {
                 <RoomDetailPopup
                     post={post} // Truyền toàn bộ dữ liệu post
                     onClose={() => setShowPopup(false)} // Hàm đóng popup
+                    onEditListing={onEditListing} // Pass the onEditListing prop
                 />
             )}
         </div>

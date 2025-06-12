@@ -6,6 +6,7 @@ import { setListings } from "../redux/state";
 import ListingCard from "../components/ListingCard";
 import Loader from "../components/Loader";
 import RoomDetailPopup from "../components/RoomDetailPopup";
+import { useNavigate } from "react-router-dom";
 
 const ListRoom = () => {
     const dispatch = useDispatch();
@@ -14,6 +15,7 @@ const ListRoom = () => {
     const [showPopup, setShowPopup] = useState(false);
     const [selectedPostForPopup, setSelectedPostForPopup] = useState(null);
     const listings = useSelector((state) => state.user.listings) || [];
+    const navigate = useNavigate();
 
     const openRoomDetailPopup = (post) => {
         setSelectedPostForPopup(post);
@@ -23,6 +25,11 @@ const ListRoom = () => {
     const closeRoomDetailPopup = () => {
         setShowPopup(false);
         setSelectedPostForPopup(null);
+    };
+
+    const handleEditListing = (postId) => {
+        navigate(`/create-listing/${postId}`);
+        closeRoomDetailPopup();
     };
 
     const getFeedListings = async () => {
@@ -66,7 +73,12 @@ const ListRoom = () => {
                 ) : (
                     <div className="listings-grid">
                         {listings.map((post) => (
-                            <ListingCard key={post.id_post} post={post} onOpenPopup={openRoomDetailPopup} />
+                            <ListingCard 
+                                key={post.id_post} 
+                                post={post} 
+                                onOpenPopup={openRoomDetailPopup}
+                                onEditListing={handleEditListing}
+                            />
                         ))}
                     </div>
                 )}
@@ -76,6 +88,7 @@ const ListRoom = () => {
                 <RoomDetailPopup 
                     post={selectedPostForPopup}
                     onClose={closeRoomDetailPopup}
+                    onEditListing={handleEditListing}
                 />
             )}
         </>
