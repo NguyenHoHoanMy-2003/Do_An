@@ -17,21 +17,6 @@ const ListRoom = () => {
     const listings = useSelector((state) => state.user.listings) || [];
     const navigate = useNavigate();
 
-    const openRoomDetailPopup = (post) => {
-        setSelectedPostForPopup(post);
-        setShowPopup(true);
-    };
-
-    const closeRoomDetailPopup = () => {
-        setShowPopup(false);
-        setSelectedPostForPopup(null);
-    };
-
-    const handleEditListing = (postId) => {
-        navigate(`/create-listing/${postId}`);
-        closeRoomDetailPopup();
-    };
-
     const getFeedListings = async () => {
         try {
             setLoading(true);
@@ -43,6 +28,7 @@ const ListRoom = () => {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             const data = await response.json();
+            console.log("Fetched listings data:", data.posts);
             dispatch(setListings({ listings: data.posts || [] }));
         } catch (err) {
             console.error("Fetch Listings Failed:", err.message);
@@ -55,6 +41,31 @@ const ListRoom = () => {
     useEffect(() => {
         getFeedListings();
     }, []);
+
+    const openRoomDetailPopup = (post) => {
+        setSelectedPostForPopup(post);
+        setShowPopup(true);
+    };
+
+    const closeRoomDetailPopup = () => {
+        setShowPopup(false);
+        setSelectedPostForPopup(null);
+    };
+
+    const handleDeleteSubRoom = () => {
+        getFeedListings(); // Refresh listings after deleting a sub-room
+        closeRoomDetailPopup();
+    };
+
+    const handleDeleteListing = () => {
+        getFeedListings(); // Refresh listings after deleting a whole listing
+        closeRoomDetailPopup();
+    };
+
+    const handleEditListing = (postId) => {
+        navigate(`/create-listing/${postId}`);
+        closeRoomDetailPopup();
+    };
 
     return (
         <>
@@ -86,9 +97,17 @@ const ListRoom = () => {
 
             {showPopup && selectedPostForPopup && (
                 <RoomDetailPopup 
-                    post={selectedPostForPopup}
+                    post={{
+                        ...selectedPostForPopup,
+                        id_post: selectedPostForPopup.id_post,
+                        Attribute: selectedPostForPopup.Attribute ? {
+                            ...selectedPostForPopup.Attribute,
+                            price: Number(selectedPostForPopup.Attribute.price)
+                        } : null
+                    }}
                     onClose={closeRoomDetailPopup}
-                    onEditListing={handleEditListing}
+                    onDeleteSubRoom={handleDeleteSubRoom}
+                    onDeleteListing={handleDeleteListing}
                 />
             )}
         </>

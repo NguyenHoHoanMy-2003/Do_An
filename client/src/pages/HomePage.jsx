@@ -12,6 +12,15 @@ const HomePage = () => {
   const [selectedPostForPopup, setSelectedPostForPopup] = useState(null);
   const navigate = useNavigate();
 
+  // Function to refresh listings (placeholder for now, will refine based on Listings component data fetching)
+  const refreshListings = () => {
+    // In a real application, you would re-fetch your listings here.
+    // For now, we'll just log a message.
+    console.log("Refreshing listings...");
+    // If Listings component fetches data via a Redux action or a prop, call that here.
+    // Example: dispatch(fetchListingsAction());
+  };
+
   const openRoomDetailPopup = (post) => {
     setSelectedPostForPopup(post);
     setShowPopup(true);
@@ -20,6 +29,16 @@ const HomePage = () => {
   const closeRoomDetailPopup = () => {
     setShowPopup(false);
     setSelectedPostForPopup(null);
+  };
+
+  const handleDeleteSubRoom = () => {
+    refreshListings();
+    closeRoomDetailPopup();
+  };
+
+  const handleDeleteListing = () => {
+    refreshListings();
+    closeRoomDetailPopup();
   };
 
   const handleEditListing = (postId) => {
@@ -37,9 +56,17 @@ const HomePage = () => {
 
       {showPopup && selectedPostForPopup && (
         <RoomDetailPopup 
-          post={selectedPostForPopup}
+          post={{
+            ...selectedPostForPopup,
+            id_post: selectedPostForPopup.id_post,
+            Attribute: selectedPostForPopup.Attribute ? {
+              ...selectedPostForPopup.Attribute,
+              price: Number(selectedPostForPopup.Attribute.price)
+            } : null
+          }}
           onClose={closeRoomDetailPopup}
-          onEditListing={handleEditListing}
+          onDeleteSubRoom={handleDeleteSubRoom}
+          onDeleteListing={handleDeleteListing}
         />
       )}
     </>

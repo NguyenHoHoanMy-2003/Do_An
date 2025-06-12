@@ -4,6 +4,7 @@ const {
   District, User, Property, Room, Image, Floor, City, SubRoom
 } = require("../models");
 const { v4: uuidv4 } = require("uuid");
+const { sequelize } = require("../models");
 
 // Hàm tách tên phòng thành danh sách các phòng con
 const parseRoomName = (name) => {
@@ -304,7 +305,13 @@ class PostService {
           include: [
             { model: Floor, as: 'floor' },
             { model: Image, as: 'images' },
-            { model: SubRoom, as: 'subRooms' }
+            { 
+              model: SubRoom, 
+              as: 'subRooms',
+              include: [
+                { model: User, as: 'renter', attributes: ['id_user', 'name', 'phone', 'national_id', 'date_of_issue', 'place_of_issue'] }
+              ]
+            }
           ]
         },
         {
@@ -321,7 +328,7 @@ class PostService {
       ]
     });
 
-    // Parse amenities và description
+    // Parse amenities và description, thêm thông tin trạng thái phòng và người thuê
     return posts.map(post => {
       if (post.room && post.room.amenities) {
         try {
@@ -340,6 +347,33 @@ class PostService {
         } catch {
           // Giữ nguyên nếu không phải JSON
         }
+      }
+
+      // Thêm thông tin trạng thái phòng và người thuê
+      if (post.room && post.room.subRooms) {
+        const bookedRooms = [];
+        const pendingRooms = [];
+        const rentersInfo = []; // To store full renter info for sub-rooms
+        const pendingRentersInfo = []; // To store full pending renter info for sub-rooms
+        
+        post.room.subRooms.forEach(subRoom => {
+          if (subRoom.status === 'booked') {
+            bookedRooms.push(subRoom.name);
+            if (subRoom.renter) {
+              rentersInfo.push({ room: subRoom.name, ...subRoom.renter.toJSON() });
+            }
+          } else if (subRoom.status === 'pending') {
+            pendingRooms.push(subRoom.name);
+            if (subRoom.renter) {
+              pendingRentersInfo.push({ room: subRoom.name, ...subRoom.renter.toJSON() });
+            }
+          }
+        });
+
+        post.bookedRooms = bookedRooms;
+        post.pendingRooms = pendingRooms;
+        post.rentersInfo = rentersInfo; // Attach to post object
+        post.pendingRentersInfo = pendingRentersInfo; // Attach to post object
       }
 
       return post;
@@ -655,21 +689,164 @@ class PostService {
 
   // Xóa bài đăng
   async deletePost(postId, userId) {
-    const post = await Post.findByPk(postId);
+    console.log("postService.deletePost called - postId:", postId, "userId:", userId);
+    const transaction = await sequelize.transaction();
+    try {
+      const post = await Post.findByPk(postId, {
+        include: [{
+          model: Room,
+          as: 'room',
+          include: [
+            {
+              model: SubRoom,
+              as: 'subRooms'
+            },
+            {
+              model: Image,
+              as: 'images'
+            }
+          ]
+        }, {
+          model: Property,
+          as: 'property',
+          attributes: ['host_id']
+        }],
+        transaction
+      });
 
-    if (!post) {
-      throw new Error('Bài đăng không tồn tại.');
+      console.log("Found post:", post ? "Yes" : "No");
+      if (!post) {
+        throw new Error('Bài đăng không tồn tại.');
+      }
+
+      console.log("Checking permissions - post.property.host_id:", post.property.host_id, "userId:", userId);
+      // Kiểm tra quyền sở hữu bài đăng
+      if (post.property.host_id !== userId) {
+        throw new Error('Bạn không có quyền xóa bài đăng này.');
+      }
+
+      // Xóa các phòng con
+      if (post.room && post.room.subRooms) {
+        console.log("Deleting subRooms...");
+        await SubRoom.destroy({
+          where: { room_id: post.room.id_room },
+          transaction
+        });
+        console.log("SubRooms deleted successfully");
+      }
+
+      // Xóa các hình ảnh
+      if (post.room && post.room.images) {
+        console.log("Deleting images...");
+        await Image.destroy({
+          where: { room_id: post.room.id_room },
+          transaction
+        });
+        console.log("Images deleted successfully");
+      }
+
+      // Xóa phòng chính
+      if (post.room) {
+        console.log("Deleting main room...");
+        await post.room.destroy({ transaction });
+        console.log("Main room deleted successfully");
+      }
+
+      // Xóa bài đăng
+      console.log("Deleting post...");
+      await post.destroy({ transaction });
+      console.log("Post deleted successfully");
+
+      await transaction.commit();
+      console.log("Transaction committed successfully");
+      return { message: 'Bài đăng đã được xóa thành công.' };
+    } catch (error) {
+      console.error("Error in deletePost:", error);
+      await transaction.rollback();
+      throw error;
     }
+  }
 
-    // Kiểm tra quyền sở hữu bài đăng
-    if (post.user_id !== userId) {
-      throw new Error('Bạn không có quyền xóa bài đăng này.');
+  // Xóa một phòng con trong bài đăng
+  async deleteSubRoom(postId, roomNumber, userId) {
+    const transaction = await sequelize.transaction();
+    try {
+      const post = await Post.findByPk(postId, {
+        include: [{
+          model: Room,
+          as: 'room',
+          include: [{
+            model: SubRoom,
+            as: 'subRooms'
+          }]
+        }, {
+          model: Property,
+          as: 'property',
+          attributes: ['host_id']
+        }]
+      });
+
+      if (!post) {
+        throw new Error("Bài đăng không tồn tại.");
+      }
+
+      // Check if user is the host of the property
+      if (post.property.host_id !== userId) {
+        throw new Error("Bạn không có quyền xóa phòng này.");
+      }
+
+      const room = post.room;
+      if (!room) {
+        throw new Error("Phòng chính không tồn tại trong bài đăng.");
+      }
+
+      const subRoomToDelete = room.subRooms.find(sub => sub.name === roomNumber);
+
+      if (!subRoomToDelete) {
+        console.log(`SubRoom to delete with name ${roomNumber} not found for Room ID ${room.id_room}`);
+        throw new Error("Phòng con không tồn tại.");
+      }
+
+      console.log(`Attempting to delete SubRoom: ${subRoomToDelete.id} (name: ${subRoomToDelete.name})`);
+      // Delete the sub-room
+      await subRoomToDelete.destroy({ transaction });
+      console.log(`SubRoom ${subRoomToDelete.id} deleted successfully.`);
+
+      // Update room.name by removing the deleted roomNumber
+      let roomNames = parseRoomName(room.name);
+      roomNames = roomNames.filter(name => name !== roomNumber);
+      room.name = roomNames.join(',');
+      await room.save({ transaction });
+
+      // Update bookedRooms and pendingRooms in the Post
+      let bookedRooms = post.bookedRooms ? JSON.parse(post.bookedRooms) : [];
+      bookedRooms = bookedRooms.filter(name => name !== roomNumber);
+      post.bookedRooms = JSON.stringify(bookedRooms);
+
+      let pendingRooms = post.pendingRooms ? JSON.parse(post.pendingRooms) : [];
+      pendingRooms = pendingRooms.filter(name => name !== roomNumber);
+      post.pendingRooms = JSON.stringify(pendingRooms);
+      
+      await post.save({ transaction });
+
+      // If no sub-rooms left, delete the main room and potentially the post
+      const remainingSubRooms = await SubRoom.count({
+        where: { room_id: room.id_room },
+        transaction
+      });
+
+      if (remainingSubRooms === 0) {
+        await room.destroy({ transaction });
+        await post.destroy({ transaction }); // Delete the post if no sub-rooms remain
+      }
+
+      await transaction.commit();
+      return { message: "Phòng con đã được xóa thành công." };
+
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
     }
-
-    // Xóa bài đăng
-    await post.destroy();
-
-    return { message: 'Bài đăng đã được xóa thành công.' };
   }
 }
 

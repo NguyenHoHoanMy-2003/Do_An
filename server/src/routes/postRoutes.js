@@ -13,5 +13,6 @@ router.post("/check-listing", verifyToken, postController.checkListingExists);
 router.post("/create", [verifyToken, isHost, upload.array("listingPhotos")], postController.createPost);
 router.put("/:postId", [verifyToken, isHost, upload.array("listingPhotos")], postController.updatePost);
 router.delete("/:postId", [verifyToken, isHost], postController.deletePost);
+router.delete("/:postId/rooms/:roomNumber", [verifyToken, isHost], postController.deleteSubRoom);
 
 module.exports = router;

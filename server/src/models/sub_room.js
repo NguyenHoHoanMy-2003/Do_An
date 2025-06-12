@@ -9,6 +9,11 @@ module.exports = (sequelize, DataTypes) => {
         as: 'room',
         onDelete: 'CASCADE'
       });
+      
+      SubRoom.belongsTo(models.User, {
+        foreignKey: 'renter_id',
+        as: 'renter'
+      });
     }
   }
 
@@ -22,6 +27,10 @@ module.exports = (sequelize, DataTypes) => {
     room_id: {
       type: DataTypes.UUID,
       allowNull: false
+    },
+    renter_id: {
+      type: DataTypes.UUID,
+      allowNull: true
     },
     name: {
       type: DataTypes.STRING(50),
