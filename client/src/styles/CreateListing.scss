@@ -61,18 +61,14 @@
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        width: 100%;
-        max-width: 110px;
+        width: 110px;
         height: 90px;
         border: 1px solid $grey;
         border-radius: 10px;
         cursor: pointer;
         transition: 0.2s ease;
-
-        @include sm {
-          max-width: 90px;
-          height: 80px;
-        }
+        background-color: #fce4e4;
+        gap: 5px;
 
         &_icon {
           font-size: 30px;
@@ -83,6 +79,7 @@
           font-weight: 600;
           text-align: center;
           color: black;
+          margin: 0;
         }
 
         &:hover {
