@@ -86,6 +86,7 @@ const LoginPage = () => {
           },
           token: result.token
         }));
+        localStorage.setItem("token", result.token); // Thêm dòng này để lưu token vào localStorage
         navigate("/");
       } else {
         setServerError(result.message || "Đăng nhập thất bại!");

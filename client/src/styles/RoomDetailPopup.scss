@@ -94,20 +94,60 @@
                 margin: 0; /* Remove default margin */
             }
 
-            .delete-mode-toggle-btn {
-                background: #f44336; /* Red for delete */
-                color: white;
-                border: none;
-                padding: 8px 15px;
-                border-radius: 5px;
-                cursor: pointer;
+            .host-actions {
                 display: flex;
+                gap: 10px; // Khoảng cách giữa các nút
                 align-items: center;
-                gap: 5px;
-                transition: background-color 0.3s ease;
 
-                &:hover {
-                    background-color: darken(#f44336, 10%);
+                button {
+                    background: #4CAF50; /* Green for edit */
+                    color: white;
+                    border: none;
+                    padding: 8px 15px;
+                    border-radius: 5px;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    gap: 5px;
+                    transition: background-color 0.3s ease;
+
+                    &:hover {
+                        background-color: darken(#4CAF50, 10%);
+                    }
+                }
+
+                .delete-mode-toggle-btn {
+                    background: #f44336; /* Red for delete mode */
+                    color: white;
+                    border: none;
+                    padding: 8px 15px;
+                    border-radius: 5px;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    gap: 5px;
+                    transition: background-color 0.3s ease;
+
+                    &:hover {
+                        background-color: darken(#f44336, 10%);
+                    }
+                }
+
+                .delete-post-btn {
+                    background: #d32f2f; /* Darker red for delete post */
+                    color: white;
+                    border: none;
+                    padding: 8px 15px;
+                    border-radius: 5px;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    gap: 5px;
+                    transition: background-color 0.3s ease;
+
+                    &:hover {
+                        background-color: darken(#d32f2f, 10%);
+                    }
                 }
             }
         }
@@ -319,6 +359,101 @@
     to {
         transform: scale(1);
         opacity: 1;
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+    .popup-content {
+        flex-direction: column;
+        width: 95%;
+        max-width: 700px; /* Adjust max-width for tablets */
+        gap: 20px;
+
+        .left-panel {
+            max-width: 100%;
+            h2 {
+                font-size: 22px;
+            }
+            .image-gallery {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                img {
+                    height: 150px;
+                }
+            }
+        }
+
+        .right-panel {
+            padding: 15px;
+            h2 {
+                font-size: 22px;
+            }
+            .rooms-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+
+                .host-actions {
+                    flex-direction: column;
+                    gap: 10px;
+                    width: 100%;
+                    button {
+                        width: 100%;
+                        justify-content: center;
+                    }
+                }
+            }
+            .room-list {
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+                gap: 10px;
+            }
+            .registration-form, .renter-info {
+                padding: 15px;
+            }
+        }
+    }
+}
+
+@media (max-width: 768px) {
+    .popup-content {
+        padding: 20px;
+        max-width: 500px; /* Adjust max-width for smaller tablets/large phones */
+    }
+}
+
+@media (max-width: 576px) {
+    .popup-content {
+        width: 95%;
+        max-width: 380px; /* Max-width for mobile phones */
+        padding: 15px;
+    }
+
+    .left-panel {
+        h2 {
+            font-size: 20px;
+        }
+        .image-gallery {
+            grid-template-columns: 1fr;
+            img {
+                height: 180px;
+            }
+        }
+        .info-list p {
+            font-size: 14px;
+        }
+    }
+
+    .right-panel {
+        h2 {
+            font-size: 20px;
+        }
+        .room-list {
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+        }
+        .delete-actions button {
+            font-size: 14px;
+            padding: 8px 15px;
+        }
     }
 }
   

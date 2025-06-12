@@ -2,7 +2,8 @@
 import { useState, useEffect, useCallback } from "react";
 import "../styles/RoomDetailPopup.scss";
 import { useSelector } from "react-redux";
-import { Delete } from "@mui/icons-material";
+import { Delete, Edit } from "@mui/icons-material";
+import { useNavigate } from "react-router-dom";
 
 const RoomDetailPopup = ({ post, onClose }) => {
     const roomData = post?.room; // Lấy dữ liệu phòng từ post
@@ -10,6 +11,7 @@ const RoomDetailPopup = ({ post, onClose }) => {
     const user = useSelector((state) => state.user.user); // Lấy thông tin user từ Redux store
     const isRenter = user?.role === "renter"; // Giả định role được lưu trong user.role
     const isHost = user?.role === "host";
+    const navigate = useNavigate();
 
     // TEMP_SIMULATION_START: Trạng thái giả lập cho từng phòng nhỏ
     // KHÔNG SỬ DỤNG KHI TÍCH HỢP VỚI DATABASE!
@@ -207,6 +209,43 @@ const RoomDetailPopup = ({ post, onClose }) => {
         }
     }, [onClose]);
 
+    const handleEditPost = () => {
+        // Đóng popup trước khi điều hướng
+        onClose();
+        // Điều hướng đến trang chỉnh sửa bài đăng và truyền dữ liệu bài đăng
+        navigate(`/edit-listing/${post.id_post}`, { state: { post } });
+    };
+
+    const handleDeletePost = async () => {
+        if (!window.confirm('Bạn có chắc chắn muốn xóa bài đăng này không? Hành động này không thể hoàn tác.')) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`http://localhost:5001/properties/${post.id_post}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${user.token}`,
+                },
+                body: JSON.stringify({ userId: user.id_user }), // Gửi userId để kiểm tra quyền sở hữu
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.message || 'Xóa bài đăng thất bại.');
+            }
+
+            alert('Bài đăng đã được xóa thành công!');
+            onClose(); // Đóng popup sau khi xóa thành công
+            window.location.reload(); // Tải lại trang để cập nhật danh sách bài đăng
+        } catch (error) {
+            console.error('Delete Post Error:', error);
+            alert(`Lỗi khi xóa bài đăng: ${error.message}`);
+        }
+    };
+
     useEffect(() => {
         const handleEscape = (e) => {
             if (e.key === 'Escape') {
@@ -230,6 +269,15 @@ const RoomDetailPopup = ({ post, onClose }) => {
 
     // Lọc lại roomItems để loại bỏ các phòng đã bị xóa (mô phỏng)
     const displayRoomItems = roomItems.filter(item => simulatedRoomStatuses[item] !== undefined);
+
+    const isOwnedByUser = user && post.user_id === user.id_user;
+
+    console.log("User object:", user);
+    console.log("User ID from Redux:", user?.id_user);
+    console.log("Post object:", post);
+    console.log("Post User ID:", post?.user_id);
+    console.log("Is Host:", isHost);
+    console.log("Is Owned By User:", isOwnedByUser);
 
     return (
         <div className="popup-overlay" onClick={handleOverlayClick}>
@@ -262,11 +310,20 @@ const RoomDetailPopup = ({ post, onClose }) => {
                 <div className="right-panel">
                     <div className="rooms-header">
                         <h2>Các phòng</h2>
-                        {isHost && (
-                            <button className="delete-mode-toggle-btn" onClick={handleToggleDeleteMode}>
-                                {isDeleteMode ? 'Thoát chế độ xóa' : 'Xóa phòng'}
-                                <Delete />
-                            </button>
+                        {isHost && isOwnedByUser && (
+                            <div className="host-actions">
+                                <button className="edit-post-btn" onClick={handleEditPost}>
+                                    Sửa bài đăng
+                                    <Edit />
+                                </button>
+                                <button className="delete-mode-toggle-btn" onClick={handleToggleDeleteMode}>
+                                    {isDeleteMode ? 'Thoát chế độ xóa' : 'Xóa phòng'}
+                                    <Delete />
+                                </button>
+                                <button className="delete-post-btn" onClick={handleDeletePost}>
+                                    Xóa bài đăng
+                                </button>
+                            </div>
                         )}
                     </div>
                     <div className="room-list">

@@ -408,6 +408,83 @@
       box-shadow: 0 0 10px 3px rgb(117, 117, 117);
     }
   }
+
+  .form-actions {
+    display: flex;
+    gap: 20px;
+    margin-top: 40px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+
+    .listing-buttons,
+    .submit-btn {
+        flex: 1;
+        min-width: 280px;
+        max-width: 300px;
+        margin-top: 0;
+    }
+
+    .listing-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        align-items: stretch;
+
+        .add-list {
+            background-color: $blue;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .pending-listings {
+            background-color: #f0f0f0;
+            padding: 15px;
+            border-radius: 8px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+    }
+
+    .submit-btn {
+        background-color: $pinkred;
+        color: white;
+        padding: 12px 25px;
+        border: none;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 700;
+        cursor: pointer;
+        width: 100%;
+        box-sizing: border-box;
+        display: block;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    @media (max-width: 768px) {
+        flex-direction: column;
+        align-items: stretch;
+
+        .listing-buttons,
+        .submit-btn {
+            min-width: auto;
+            max-width: none;
+            width: 100%;
+            flex: 1;
+        }
+
+        .listing-buttons {
+            align-items: stretch;
+        }
+    }
+  }
 }
 
 .date-range-calendar {
@@ -603,5 +680,138 @@
         background-color: darken($pinkred, 10%);
       }
     }
+  }
+}
+
+.registration-form {
+  // ... existing styles ...
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+  // ... existing responsive styles ...
+}
+
+@media (max-width: 768px) {
+  // ... existing responsive styles ...
+}
+
+@media (max-width: 576px) {
+  // ... existing responsive styles ...
+}
+
+.create-listing {
+  .listing-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-top: 40px;
+    align-items: stretch;
+
+    @media (min-width: 768px) {
+      flex-direction: row;
+      justify-content: flex-start;
+      align-items: center;
+    }
+
+    .add-list {
+      background-color: $blue;
+      color: white;
+      padding: 12px 25px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      width: 100%;
+      max-width: none;
+
+      &:hover {
+        background-color: darken($blue, 10%);
+        transform: translateY(-2px);
+      }
+
+      &:disabled {
+        background-color: $grey;
+        cursor: not-allowed;
+      }
+    }
+
+    .pending-listings {
+      background-color: #f0f0f0;
+      padding: 15px;
+      border-radius: 8px;
+      width: 100%;
+      max-width: 400px;
+
+      h4 {
+        margin-top: 0;
+        color: #555;
+      }
+
+      ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+
+        li {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 8px 0;
+          border-bottom: 1px dashed #ccc;
+
+          &:last-child {
+            border-bottom: none;
+          }
+
+          button {
+            background: $pinkred;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: background-color 0.3s ease;
+
+            &:hover {
+              background-color: darken($pinkred, 10%);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .submit-btn {
+    background-color: $pinkred;
+    color: white;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 40px;
+    width: fit-content;
+    display: block;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+
+    &:hover {
+      background-color: darken($pinkred, 10%);
+      transform: translateY(-2px);
+    }
+
+    &:disabled {
+      background-color: $grey;
+      cursor: not-allowed;
+      transform: none;
+    }
+  }
+
+  .add_btn, .submit_btn {
+    // You might want to remove existing styles here or ensure they are overridden by the new ones
   }
 }

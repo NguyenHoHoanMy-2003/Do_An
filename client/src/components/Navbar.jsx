@@ -168,6 +168,17 @@ const Navbar = () => {
                 <Link to="/login">Log In</Link>
                 <Link to="/register">Sign In</Link>
               </>
+            ) : user.role === 'admin' ? (
+              <>
+                <Link to="/admin">Admin Dashboard</Link>
+                <Link to="/info">Info Management</Link>
+                <Link
+                  to="/login"
+                  onClick={() => dispatch(setLogout())}
+                >
+                  Log Out
+                </Link>
+              </>
             ) : user.role === 'host' ? (
               <>
                 <Link to="/info">Info Management</Link>
@@ -175,7 +186,6 @@ const Navbar = () => {
                 <Link to="/contracts">Contract List</Link>
                 <Link to="/paybill">Pay Bill</Link>
                 <Link to="/list-room">List Room</Link>
-                
                 <Link
                   to="/login"
                   onClick={() => dispatch(setLogout())}

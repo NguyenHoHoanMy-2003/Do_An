@@ -5,6 +5,7 @@ const authRouters = require('./auth');
 const postRouter = require('./postRoutes'); // new
 const buildingRouter = require('./buildingRoutes'); // new
 const contractRoutes = require('./contractRoutes');
+const adminRoutes = require('./adminRoutes');
 
 
 const initRoutes = (app) => {
@@ -21,6 +22,9 @@ const initRoutes = (app) => {
 
   // Định nghĩa route cho hợp đồng (contracts)
   app.use('/contracts', contractRoutes);
+
+  // Admin routes
+  app.use('/admin', adminRoutes);
 
   return app.use('/', (req, res) => {
     res.send('server on ...');
