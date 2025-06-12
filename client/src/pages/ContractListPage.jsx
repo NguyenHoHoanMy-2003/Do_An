@@ -1,22 +1,10 @@
 import React, { useState, useEffect } from "react";
 import "../styles/Contracts.scss";
 import Navbar from "../components/Navbar";
-import { FaSearch, FaPrint, FaHistory, FaTrash } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { FaSearch, FaPrint, FaHistory } from "react-icons/fa";
 
 const ContractListPage = () => {
-  const navigate = useNavigate();
-  const [contracts, setContracts] = useState([
-    {
-      id: 1,
-      room: "101",
-      tenantName: "Nguyễn Văn A",
-      status: "pending",
-      startDate: "2024-03-01",
-      endDate: "2024-09-01",
-      price: 3000000  
-    },
-  ]);
+  const [contracts, setContracts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [selectedContract, setSelectedContract] = useState(null);
@@ -87,6 +75,10 @@ const ContractListPage = () => {
     }
 
     closeModal();
+  };
+
+  const handleDetailClick = (contract) => {
+    navigate('/contract-form', { state: { contractData: contract } });
   };
 
   const handleDetailClick = (contract) => {
@@ -166,19 +158,8 @@ const ContractListPage = () => {
                       <td>
                         <span className="status pending">Pending</span>
                       </td>
-                      <td className="actions-cell">
-                        <button 
-                          className="btn small" 
-                          onClick={() => handleDetailClick(c)}
-                        >
-                          Detail
-                        </button>
-                        <button 
-                          className="btn small delete" 
-                          onClick={() => handleDelete(c)}
-                        >
-                          <FaTrash /> Delete
-                        </button>
+                      <td>
+                        <button className="btn small">Detail</button>
                       </td>
                     </tr>
                 ))}

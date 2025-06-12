@@ -1,25 +1,29 @@
 // client/src/components/RoomDetailPopup.jsx
 import { useState, useEffect, useCallback } from "react";
 import "../styles/RoomDetailPopup.scss";
-import { useSelector } from "react-redux";
-import { Delete } from "@mui/icons-material";
+
 
 const RoomDetailPopup = ({ post, onClose }) => {
     const roomData = post?.room; // Lấy dữ liệu phòng từ post
     const listingPhotoPaths = post?.room?.images?.map(img => img.image_url) || [];
-    const user = useSelector((state) => state.user.user); // Lấy thông tin user từ Redux store
-    const isRenter = user?.role === "renter"; // Giả định role được lưu trong user.role
-    const isHost = user?.role === "host";
 
-    const [subRooms, setSubRooms] = useState(roomData?.subRooms || []); // State để lưu thông tin phòng con thực tế
-    const [renterInfo, setRenterInfo] = useState(null); // State để lưu thông tin người thuê được chọn
-    const [isDeleteMode, setIsDeleteMode] = useState(false); // Thêm state cho chế độ xóa
-    const [roomsToDelete, setRoomsToDelete] = useState([]); // State để lưu các phòng đã chọn để xóa
+    // TEMP_SIMULATION_START: Trạng thái giả lập cho từng phòng nhỏ
+    // KHÔNG SỬ DỤNG KHI TÍCH HỢP VỚI DATABASE!
+    const [simulatedRoomStatuses, setSimulatedRoomStatuses] = useState({});
 
-    // Cập nhật subRooms khi post.room.subRooms thay đổi
     useEffect(() => {
-        setSubRooms(roomData?.subRooms || []);
-    }, [roomData?.subRooms]);
+        const initialStatuses = {};
+        const roomItems = parseRoomName(roomData?.name);
+        // Đặt một số phòng là 'occupied' để giả lập
+        if (roomItems.length > 0) {
+            initialStatuses[roomItems[0]] = 'occupied'; // Giả lập phòng đầu tiên là đã thuê
+            if (roomItems.length > 2) {
+                initialStatuses[roomItems[2]] = 'occupied'; // Giả lập phòng thứ ba là đã thuê (nếu có)
+            }
+        }
+        setSimulatedRoomStatuses(initialStatuses);
+    }, [roomData?.name]);
+    // TEMP_SIMULATION_END
 
     const [formData, setFormData] = useState({
         hoTen: '',
@@ -30,204 +34,66 @@ const RoomDetailPopup = ({ post, onClose }) => {
     });
     const [selectedSubRoom, setSelectedSubRoom] = useState(null); // State để theo dõi phòng nhỏ được chọn
 
-
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        console.log('Form Data Submitted for room:', selectedSubRoom?.name, formData);
-        // Logic xử lý submit form (gửi lên backend) sẽ được thêm sau
-        // Ví dụ: Gửi yêu cầu đăng ký thuê phòng
-        try {
-            const response = await fetch("http://localhost:5001/contracts/create", { // Thay đổi endpoint nếu cần
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    // "Authorization": `Bearer ${user.token}` // Nếu có token
-                },
-                body: JSON.stringify({
-                    roomId: roomData.id_room, // ID của Room cha
-                    subRoomId: selectedSubRoom.id, // ID của SubRoom được chọn
-                    renterInfo: formData, // Thông tin người thuê
-                    // ... các thông tin khác cần thiết cho hợp đồng
-                })
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || "Đăng ký thuê phòng thất bại.");
+    // Function để phân tích tên phòng thành danh sách các số phòng
+    const parseRoomName = (name) => {
+        if (!name) return [];
+        name = name.trim();
+        if (name.includes('-')) {
+            const parts = name.split('-');
+            if (parts.length === 2) {
+                const start = parseInt(parts[0], 10);
+                const end = parseInt(parts[1], 10);
+                if (!isNaN(start) && !isNaN(end) && start <= end) {
+                    const rooms = [];
+                    for (let i = start; i <= end; i++) {
+                        rooms.push(i.toString());
+                    }
+                    return rooms;
+                }
             }
-
-            const result = await response.json();
-            alert(result.message || "Đăng ký thuê phòng thành công!");
-            // Cập nhật trạng thái phòng nếu đăng ký thành công
-            // (Bạn sẽ cần một API để cập nhật trạng thái phòng con)
-            // Ví dụ: setSubRooms(prev => prev.map(sr => sr.id === selectedSubRoom.id ? { ...sr, status: 'occupied' } : sr));
-            onClose(); // Đóng popup sau khi submit thành công
-        } catch (error) {
-            console.error("Lỗi đăng ký thuê phòng:", error.message);
-            alert(error.message);
+        } else if (name.includes(',')) {
+            return name.split(',').map(item => item.trim()).filter(item => item !== '');
+        } else if (name !== '') {
+            return [name];
         }
+        return [];
     };
 
-    const handleToggleDeleteMode = () => {
-        setIsDeleteMode(prev => !prev);
-        setRoomsToDelete([]); // Reset các phòng đã chọn khi chuyển chế độ
-        setSelectedSubRoom(null); // Bỏ chọn phòng
-        setRenterInfo(null); // Bỏ thông tin người thuê
+    const roomItems = parseRoomName(roomData?.name);
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
         setFormData({
-            hoTen: '',
-            soDienThoai: '',
-            cccdSo: '',
-            cccdNgayCap: '',
-            cccdNoiCap: '',
+            ...formData,
+            [name]: value,
         });
     };
 
-    const handleDeleteRooms = async () => {
-        if (roomsToDelete.length === 0) return;
-
-        if (!window.confirm(`Bạn có chắc chắn muốn xóa ${roomsToDelete.length} phòng này?`)) {
-            return;
-        }
-
-        try {
-            const response = await fetch("http://localhost:5001/subrooms/delete", { // Sẽ tạo API này
-                method: "DELETE",
-                headers: {
-                    "Content-Type": "application/json",
-                    // "Authorization": `Bearer ${user.token}` // Nếu có token
-                },
-                body: JSON.stringify({ subRoomIds: roomsToDelete })
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        console.log('Form Data Submitted for room:', selectedRoomItem, formData);
+        // Logic xử lý submit form (gửi lên backend) sẽ được thêm sau
+        // onClose(); // Đóng popup sau khi submit thành công (hoặc thất bại)
+    };
+    const handleRoomItemClick = (roomNumber) => {
+        // TEMP_SIMULATION_START: Cập nhật logic để dựa vào trạng thái giả lập của từng phòng
+        // SẼ THAY THẾ BẰNG LOGIC TỪ DATABASE SAU NÀY!
+        if (simulatedRoomStatuses[roomNumber] === 'available' || !simulatedRoomStatuses[roomNumber]) { // Nếu phòng chưa thuê hoặc không có trạng thái cụ thể (mặc định là available)
+            setSelectedRoomItem(roomNumber); 
+            // Reset form data khi chọn phòng mới
+            setFormData({
+                hoTen: '',
+                soDienThoai: '',
+                cccdSo: '',
+                cccdNgayCap: '',
+                cccdNoiCap: '',
             });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || "Xóa phòng thất bại.");
-            }
-
-            const result = await response.json();
-            alert(result.message || "Xóa phòng thành công!");
-
-            // Cập nhật lại state subRooms sau khi xóa thành công
-            setSubRooms(prevSubRooms =>
-                prevSubRooms.filter(room => !roomsToDelete.includes(room.id))
-            );
-
-            setRoomsToDelete([]); // Reset các phòng đã xóa
-            setIsDeleteMode(false); // Thoát chế độ xóa
-            setSelectedSubRoom(null);
-            setRenterInfo(null);
-        } catch (error) {
-            console.error("Lỗi khi xóa phòng:", error.message);
-            alert(error.message);
+        } else {
+            setSelectedRoomItem(null); // Bỏ chọn nếu click vào phòng đã thuê
         }
+        // TEMP_SIMULATION_END
     };
 
-    const handleRoomItemClick = async (subRoom) => {
-        const isOccupied = subRoom.status === 'occupied';
-
-        if (isHost) {
-            if (isDeleteMode) {
-                // Trong chế độ xóa, chỉ cho phép chọn phòng trống
-                if (!isOccupied) {
-                    setRoomsToDelete(prev =>
-                        prev.includes(subRoom.id)
-                            ? prev.filter(id => id !== subRoom.id)
-                            : [...prev, subRoom.id]
-                    );
-                    setSelectedSubRoom(null); // Bỏ chọn phòng hiện tại khi ở chế độ xóa
-                    setRenterInfo(null); // Đảm bảo không hiển thị thông tin người thuê
-                    setFormData({
-                        hoTen: '', soDienThoai: '', cccdSo: '', cccdNgayCap: '', cccdNoiCap: '',
-                    });
-                } else {
-                    alert('Không thể xóa phòng đã được thuê.');
-                }
-            } else { // Host không ở chế độ xóa
-                setSelectedSubRoom(subRoom);
-                if (isOccupied) {
-                    // TODO: Gọi API để lấy thông tin người thuê của phòng này
-                    // const response = await fetch(`http://localhost:5001/contracts/room/${subRoom.id}/renter`);
-                    // const data = await response.json();
-                    // setRenterInfo(data.renterInfo);
-                    setRenterInfo({ hoTen: 'Người Thuê A', soDienThoai: '0123456789', cccdSo: '12345', cccdNgayCap: '01/01/2020', cccdNoiCap: 'HN' }); // Tạm thời dùng static
-                } else {
-                    setRenterInfo(null);
-                }
-                setFormData({
-                    hoTen: '', soDienThoai: '', cccdSo: '', cccdNgayCap: '', cccdNoiCap: '',
-                });
-            }
-        } else if (isRenter) {
-            setSelectedSubRoom(subRoom);
-            if (!isOccupied) {
-                setRenterInfo(null);
-                setFormData({
-                    hoTen: '', soDienThoai: '', cccdSo: '', cccdNgayCap: '', cccdNoiCap: '',
-                });
-            } else {
-                setSelectedSubRoom(null); // Bỏ chọn nếu renter click phòng đã thuê
-                setRenterInfo(null);
-                setFormData({
-                    hoTen: '', soDienThoai: '', cccdSo: '', cccdNgayCap: '', cccdNoiCap: '',
-                });
-                alert('Phòng này đã được thuê. Vui lòng chọn phòng khác.');
-            }
-        }
-    };
-
-    const handleOverlayClick = useCallback((e) => {
-        if (e.target === e.currentTarget) {
-            onClose();
-        }
-    }, [onClose]);
-
-    useEffect(() => {
-        const handleEscape = (e) => {
-            if (e.key === 'Escape') {
-                onClose();
-            }
-        };
-
-        document.addEventListener('keydown', handleEscape);
-
-        const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-        document.body.style.paddingRight = `${scrollbarWidth}px`;
-        document.body.style.overflow = 'hidden';
-
-        return () => {
-            document.removeEventListener('keydown', handleEscape);
-            document.body.style.overflow = 'unset';
-            document.body.style.paddingRight = '0px'; // Reset padding
-        };
-    }, [onClose]);
-
-    // Sử dụng subRooms từ state thay vì roomItems từ parseRoomName
-    const displaySubRooms = [...subRooms].sort((a, b) => {
-        return parseInt(a.name, 10) - parseInt(b.name, 10);
-    });
-
-    useEffect(() => {
-        // Khi renter chọn phòng, tự động fetch info user theo id_user
-        if (isRenter && selectedSubRoom && selectedSubRoom.status === 'available' && user?.id_user) {
-            fetch(`http://localhost:5001/users/public/${user.id_user}`)
-                .then(res => res.json())
-                .then(userData => {
-                    setFormData({
-                        hoTen: userData.name || '',
-                        soDienThoai: userData.phone || '',
-                        cccdSo: userData.national_id || '',
-                        cccdNgayCap: userData.date_of_issue ? new Date(userData.date_of_issue).toLocaleDateString('vi-VN') : '',
-                        cccdNoiCap: userData.place_of_issue || ''
-                    });
-                })
-                .catch(err => {
-                    setFormData({
-                        hoTen: '', soDienThoai: '', cccdSo: '', cccdNgayCap: '', cccdNoiCap: ''
-                    });
-                });
-        }
-    }, [isRenter, selectedSubRoom, user]);
 
     return (
         <div className="popup-overlay" onClick={handleOverlayClick}>
@@ -258,55 +124,37 @@ const RoomDetailPopup = ({ post, onClose }) => {
                 </div>
 
                 <div className="right-panel">
-                    <div className="rooms-header">
-                        <h2>Các phòng</h2>
-                        {isHost && (
-                            <button className="delete-mode-toggle-btn" onClick={handleToggleDeleteMode}>
-                                {isDeleteMode ? 'Thoát chế độ xóa' : 'Xóa phòng'}
-                                <Delete />
-                            </button>
-                        )}
-                    </div>
+                    <h2>Các phòng</h2>
                     <div className="room-list">
-                        {displaySubRooms.length > 0 ? (
-                            displaySubRooms.map(subRoom => {
-                                const isRoomOccupied = subRoom.status === 'occupied';
+                        {roomItems.length > 0 ? (
+                            roomItems.map(item => {
+                                // TEMP_SIMULATION_START: Sử dụng trạng thái giả lập cho từng phòng
+                                // SẼ THAY THẾ BẰNG room.individualRoomStatuses[item] HOẶC TƯƠNG TỰ TỪ DATABASE!
+                                const isRoomOccupied = simulatedRoomStatuses[item] === 'occupied';
                                 const roomStatusText = isRoomOccupied ? 'Đã thuê' : 'Chưa thuê';
                                 const roomStatusClass = isRoomOccupied ? 'occupied' : 'available';
-                                // So sánh với selectedSubRoom.id thay vì selectedRoomItem
-                                const isSelected = selectedSubRoom && selectedSubRoom.id === subRoom.id;
-                                const isMarkedForDeletion = roomsToDelete.includes(subRoom.id); // Kiểm tra phòng có được chọn để xóa không
+                                // TEMP_SIMULATION_END
 
                                 return (
                                     <div
-                                        key={subRoom.id}
-                                        className={`room-item ${roomStatusClass} ${isSelected ? 'selected' : ''} ${isDeleteMode && isMarkedForDeletion ? 'marked-for-deletion' : ''}`}
-                                        onClick={() => handleRoomItemClick(subRoom)} // Truyền toàn bộ subRoom object
+                                        key={item}
+                                        className={`room-item ${roomStatusClass}`} // Sử dụng class từ trạng thái giả lập
+                                        onClick={() => handleRoomItemClick(item)} 
                                     >
-                                        Phòng {subRoom.name}
-                                        <div className="room-status">{roomStatusText}</div>
+                                        Phòng {item} ({roomStatusText})
                                     </div>
                                 );
                             })
                         ) : (
-                            <p>Không có thông tin phòng cụ thể.</p>
+                            <p>Không có thông tin phòng cụ thể hoặc tất cả phòng đã bị xóa.</p>
                         )}
                     </div>
 
-                    {isHost && isDeleteMode && roomsToDelete.length > 0 && (
-                        <div className="delete-actions">
-                            <button className="confirm-delete-btn" onClick={handleDeleteRooms}>
-                                Xác nhận xóa ({roomsToDelete.length} phòng)
-                            </button>
-                            <button className="cancel-delete-btn" onClick={handleToggleDeleteMode}>
-                                Hủy
-                            </button>
-                        </div>
-                    )}
-
-                    {isRenter && selectedSubRoom && selectedSubRoom.status === 'available' && ( // Kiểm tra trạng thái thực tế
-                        <div className="registration-form">
-                            <h3>Đăng ký thuê Phòng {selectedSubRoom.name}</h3>
+                    {/* TEMP_SIMULATION_START: Logic hiển thị form dựa trên trạng thái giả lập của phòng nhỏ được chọn */}
+                    {/* SẼ THAY THẾ BẰNG (selectedRoomItem && room.individualRoomStatuses[selectedRoomItem] === 'available') HOẶC TƯƠNG TỰ */}
+                    {selectedRoomItem && (simulatedRoomStatuses[selectedRoomItem] === 'available' || !simulatedRoomStatuses[selectedRoomItem]) && (
+                        <div>
+                            <h3>Đăng ký thuê Phòng {selectedRoomItem}</h3>
                             <form onSubmit={handleSubmit}>
                                 <div className="form-group">
                                     <label htmlFor="hoTen">Họ và tên:</label>
@@ -332,33 +180,17 @@ const RoomDetailPopup = ({ post, onClose }) => {
                             </form>
                         </div>
                     )}
+                    {/* TEMP_SIMULATION_END */}
 
-                    {isHost && selectedSubRoom && selectedSubRoom.status === 'occupied' && renterInfo && (
-                        <div className="renter-info">
-                            <h3>Thông tin người thuê Phòng {selectedSubRoom.name}</h3>
-                            <p><strong>Họ và tên:</strong> {renterInfo.hoTen}</p>
-                            <p><strong>Số điện thoại:</strong> {renterInfo.soDienThoai}</p>
-                            <p><strong>CCCD:</strong> {renterInfo.cccdSo}</p>
-                            <p><strong>Ngày cấp:</strong> {renterInfo.cccdNgayCap}</p>
-                            <p><strong>Nơi cấp:</strong> {renterInfo.cccdNoiCap}</p>
-                        </div>
+                    {/* TEMP_SIMULATION_START: Hiển thị thông báo khi tất cả các phòng nhỏ đã thuê hoặc phòng chung đã thuê */}
+                    {/* SẼ THAY THẾ BẰNG LOGIC KIỂM TRA TRẠNG THÁI CỦA TỪNG PHÒNG TỪ DATABASE */} 
+                    {roomItems.every(item => simulatedRoomStatuses[item] === 'occupied') && (
+                        <p style={{ color: 'red' }}>Tất cả các phòng trong listing này đã được thuê.</p>
                     )}
-
-                    {displaySubRooms.length > 0 && displaySubRooms.every(subRoom => subRoom.status === 'occupied') && (
-                        <p className="error-message">Tất cả các phòng trong listing này đã được thuê.</p>
-                    )}
-
-                    {isHost && !selectedSubRoom && !isDeleteMode && (
-                        <p style={{ marginTop: '20px', fontSize: '16px', color: '#555' }}>
-                            Bạn là chủ nhà, bấm vào phòng đã thuê để xem thông tin người thuê.<br/>Bấm "Xóa phòng" để quản lý phòng.
-                        </p>
-                    )}
-
-                    {isHost && isDeleteMode && roomsToDelete.length === 0 && (
-                        <p style={{ marginTop: '20px', fontSize: '16px', color: '#555' }}>
-                            Chọn các phòng chưa thuê để xóa.
-                        </p>
-                    )}
+                    {/* XÓA PHẦN NÀY KHI TÍCH HỢP DATABASE: roomData?.status !== 'available' && ( */}
+                    {/*  <p style={{ color: 'red' }}>Phòng chung này được thuê.</p> */}
+                    {/* ) */}
+                    {/* TEMP_SIMULATION_END */}
 
                 </div>
 

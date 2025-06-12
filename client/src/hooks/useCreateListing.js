@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -314,7 +313,7 @@ const useCreateListing = () => {
   const submitListing = async (listingData) => {
     const listingForm = new FormData();
 
-    listingForm.append("creatorId", listingData.creatorId);
+    listingForm.append("creatorId", creatorId);
     listingForm.append("category", listingData.category);
     listingForm.append("type", listingData.type);
     listingForm.append("buildingName", listingData.buildingName || buildingName);
@@ -343,8 +342,16 @@ const useCreateListing = () => {
       listingForm.append("listingPhotos", photo);
     });
 
+    console.log("Attempting to submit listing with creatorId:", creatorId);
+    const token = localStorage.getItem("token");
+    console.log("Retrieved token:", token);
+
     const response = await fetch("http://localhost:5001/properties/create", {
       method: "POST",
+      headers: {
+        "x-user-id": creatorId,
+        "Authorization": `Bearer ${token}`,
+      },
       body: listingForm,
     });
 
