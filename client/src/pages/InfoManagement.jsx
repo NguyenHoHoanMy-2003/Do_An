@@ -29,7 +29,11 @@ const InfoManagement = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await fetch(`http://localhost:5001/users/${userId}`);
+        const res = await fetch(`http://localhost:5001/users/${userId}`, {
+          headers: {
+            "Authorization": `Bearer ${localStorage.getItem("token")}`
+          }
+        });
         if (res.ok) {
           const data = await res.json();
           setFormData({
@@ -37,10 +41,10 @@ const InfoManagement = () => {
             password: data.password || "",
             name: data.name || "",
             email: data.email || "",
-            dob: data.date_of_birth ? new Date(data.date_of_birth).toISOString().split('T')[0] : "",
+            dob: data.date_of_birth && !isNaN(new Date(data.date_of_birth)) ? new Date(data.date_of_birth).toISOString().split('T')[0] : "",
             gender: data.gender || "",
             cccd: data.national_id || "",
-            issueDate: data.date_of_issue ? new Date(data.date_of_issue).toISOString().split('T')[0] : "",
+            issueDate: data.date_of_issue && !isNaN(new Date(data.date_of_issue)) ? new Date(data.date_of_issue).toISOString().split('T')[0] : "",
             placeOfIssue: data.place_of_issue || "",
             address: data.permanent_address || ""
           });

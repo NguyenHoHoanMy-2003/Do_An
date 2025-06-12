@@ -6,17 +6,7 @@ import { useNavigate } from "react-router-dom";
 
 const ContractListPage = () => {
   const navigate = useNavigate();
-  const [contracts, setContracts] = useState([
-    {
-      id: 1,
-      room: "101",
-      tenantName: "Nguyễn Văn A",
-      status: "pending",
-      startDate: "2024-03-01",
-      endDate: "2024-09-01",
-      price: 3000000  
-    },
-  ]);
+  const [contracts, setContracts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [selectedContract, setSelectedContract] = useState(null);
@@ -92,6 +82,7 @@ const ContractListPage = () => {
   const handleDetailClick = (contract) => {
     navigate('/contract-form', { state: { contractData: contract } });
   };
+
   const handleDelete = async (contract) => {
     if (window.confirm(`Are you sure you want to delete this contract for Room ${contract.room}?`)) {
       try {
@@ -111,6 +102,7 @@ const ContractListPage = () => {
       }
     }
   };
+
   const isContractExpired = (endDate) => {
     return new Date(endDate) < new Date();
   };
@@ -166,19 +158,8 @@ const ContractListPage = () => {
                       <td>
                         <span className="status pending">Pending</span>
                       </td>
-                      <td className="actions-cell">
-                        <button 
-                          className="btn small" 
-                          onClick={() => handleDetailClick(c)}
-                        >
-                          Detail
-                        </button>
-                        <button 
-                          className="btn small delete" 
-                          onClick={() => handleDelete(c)}
-                        >
-                          <FaTrash /> Delete
-                        </button>
+                      <td>
+                        <button className="btn small">Detail</button>
                       </td>
                     </tr>
                 ))}

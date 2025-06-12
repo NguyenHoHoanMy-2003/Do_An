@@ -73,4 +73,23 @@ exports.updateUserDetails = async (req, res) => {
     console.error("Lỗi khi cập nhật thông tin người dùng:", error);
     res.status(500).json({ message: "Lỗi server khi cập nhật thông tin người dùng.", error: error.message });
   }
+};
+
+exports.getUserById = async (req, res) => {
+    try {
+        console.log("getUserById (userController) function hit!");
+        const { userId } = req.params;
+        const user = await User.findByPk(userId, {
+            attributes: { exclude: ['password'] } // Loại trừ mật khẩu
+        });
+
+        if (!user) {
+            return res.status(404).json({ message: "Không tìm thấy người dùng." });
+        }
+
+        res.json(user);
+    } catch (error) {
+        console.error("Get User by ID Error:", error);
+        res.status(500).json({ message: "Lỗi server khi lấy thông tin người dùng." });
+    }
 }; 
