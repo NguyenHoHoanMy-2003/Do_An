@@ -100,7 +100,7 @@
       gap: 20px;
       max-width: 100%;
       justify-content: center;
-    
+
       .type {
         flex: 1 1 calc(50% - 20px);
         display: flex;
@@ -112,43 +112,43 @@
         border-radius: 10px;
         cursor: pointer;
         transition: 0.3s ease;
-    
+
         @include sm {
           flex: 1 1 100%;
           max-width: none;
           padding: 15px 20px;
         }
-    
+
         &_text {
           max-width: 400px;
-    
+
           h4 {
             margin-bottom: 5px;
           }
         }
-    
+
         &_icon {
           font-size: 30px;
         }
-    
+
         &:hover {
           border: 2px solid $pinkred;
           background-color: $lightgrey;
         }
       }
-    
+
       .selected {
         border: 2px solid $pinkred;
         background-color: $lightgrey;
       }
     }
 
-      .full {
-        max-width: 700px;
-        @include sm {
-          max-width: 100%;
-        }
+    .full {
+      max-width: 700px;
+      @include sm {
+        max-width: 100%;
       }
+    }
 
     .half {
       max-width: 700px;
@@ -171,8 +171,9 @@
         font-weight: 700;
         margin: 20px 0 10px;
       }
-      
-      input,select {
+
+      input,
+      select {
         border: 1px solid $grey;
         padding: 15px 30px;
         border-radius: 10px;
@@ -185,24 +186,24 @@
         }
       }
     }
-// Ghi đè style p trong location-row nếu cần
-.location-row .location > p,
-.location-row .floor > p {
-  font-weight: normal;
-  margin: 10px 0;
-}
+    // Ghi đè style p trong location-row nếu cần
+    .location-row .location > p,
+    .location-row .floor > p {
+      font-weight: normal;
+      margin: 10px 0;
+    }
 
-// Flex để xếp Building's Name và Tầng ngang hàng
-.location-row {
-  display: flex;
-  gap: 20px;
-  align-items: flex-start;
+    // Flex để xếp Building's Name và Tầng ngang hàng
+    .location-row {
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
 
-  .location,
-  .floor {
-    flex: 1;
-  }
-}
+      .location,
+      .floor {
+        flex: 1;
+      }
+    }
     .basics {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -489,71 +490,68 @@
 
     .listing-buttons,
     .submit-btn {
-        flex: 1;
-        min-width: 280px;
-        max-width: 300px;
-        margin-top: 0;
+      flex: 1;
+      min-width: 280px;
+      max-width: 300px;
+      margin-top: 0;
     }
 
     .listing-buttons {
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-        align-items: stretch;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      align-items: stretch;
 
-        .add-list {
-            background-color: $blue;
-            color: white;
-            padding: 12px 25px;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-            width: 100%;
-            box-sizing: border-box;
-        }
+      .add-btn {
+        @include buttonStyle;
+        margin-right: 20px;
+        background-color: $blue;
+        cursor: pointer;
 
-        .pending-listings {
-            background-color: #f0f0f0;
-            padding: 15px;
-            border-radius: 8px;
-            width: 100%;
-            box-sizing: border-box;
+        &:hover {
+          background-color: darken($blue, 10%);
         }
+      }
+
+      .pending-listings {
+        background-color: #f0f0f0;
+        padding: 15px;
+        border-radius: 8px;
+        width: 100%;
+        box-sizing: border-box;
+      }
     }
 
     .submit-btn {
-        background-color: $pinkred;
-        color: white;
-        padding: 12px 25px;
-        border: none;
-        border-radius: 10px;
-        font-size: 16px;
-        font-weight: 700;
-        cursor: pointer;
-        width: 100%;
-        box-sizing: border-box;
-        display: block;
-        transition: background-color 0.3s ease, transform 0.2s ease;
+      background-color: $pinkred;
+      color: white;
+      padding: 12px 25px;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      width: 100%;
+      box-sizing: border-box;
+      display: block;
+      transition: background-color 0.3s ease, transform 0.2s ease;
     }
 
     @media (max-width: 768px) {
-        flex-direction: column;
+      flex-direction: column;
+      align-items: stretch;
+
+      .listing-buttons,
+      .submit-btn {
+        min-width: auto;
+        max-width: none;
+        width: 100%;
+        flex: 1;
+      }
+
+      .listing-buttons {
         align-items: stretch;
-
-        .listing-buttons,
-        .submit-btn {
-            min-width: auto;
-            max-width: none;
-            width: 100%;
-            flex: 1;
-        }
-
-        .listing-buttons {
-            align-items: stretch;
-        }
+      }
     }
   }
 }
@@ -707,7 +705,8 @@
   gap: 20px;
   margin-bottom: 20px;
 
-  .location, .floor {
+  .location,
+  .floor {
     flex: 1;
   }
 
@@ -754,22 +753,7 @@
   }
 }
 
-.registration-form {
-  // ... existing styles ...
-}
 
-/* Responsive adjustments */
-@media (max-width: 992px) {
-  // ... existing responsive styles ...
-}
-
-@media (max-width: 768px) {
-  // ... existing responsive styles ...
-}
-
-@media (max-width: 576px) {
-  // ... existing responsive styles ...
-}
 
 .create-listing {
   .listing-buttons {
@@ -882,7 +866,4 @@
     }
   }
 
-  .add_btn, .submit_btn {
-    // You might want to remove existing styles here or ensure they are overridden by the new ones
-  }
 }

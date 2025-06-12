@@ -47,7 +47,7 @@ const CreateListing = () => {
     handleDeleteFloor,
     handleDeleteBuilding,
     setNewBuildingName,
-    setNewFloorName
+    setNewFloorName,
   } = useCreateListing();
 
   return (
@@ -55,35 +55,36 @@ const CreateListing = () => {
       <Navbar />
       <div className="create-listing">
         <h1>Publish Your Place</h1>
-        
-        {errors.submit && (
-          <div className="error-banner">{errors.submit}</div>
-        )}
-        
+
+        {errors.submit && <div className="error-banner">{errors.submit}</div>}
+
         <form onSubmit={handleSubmit}>
           <div className="create-listing_step1">
             <h2>Step 1: Tell us about your place</h2>
             <hr />
-            
+
             <h3>What services will you get after renting a room?</h3>
             <div className="category-list">
               {categories?.map((item, index) => (
                 <div
-                  className={`category ${formData.category === item.label ? "selected" : ""}`}
+                  className={`category ${
+                    formData.category === item.label ? "selected" : ""
+                  }`}
                   key={index}
-                  
                 >
                   <div className="category_icon">{item.icon}</div>
                   <p>{item.label}</p>
                 </div>
               ))}
             </div>
-            
+
             <h3>What type of place will guests have?</h3>
             <div className="type-list">
               {types?.map((item, index) => (
                 <div
-                  className={`type ${formData.type === item.name ? "selected" : ""}`}
+                  className={`type ${
+                    formData.type === item.name ? "selected" : ""
+                  }`}
                   key={index}
                   onClick={() => handleTypeSelect(item.name)}
                 >
@@ -96,7 +97,7 @@ const CreateListing = () => {
               ))}
             </div>
             {errors.type && <div className="error-message">{errors.type}</div>}
-            
+
             <h3>Where's your place located?</h3>
             <div className="full">
               <BuildingSection
@@ -124,23 +125,22 @@ const CreateListing = () => {
               errors={errors}
               isViewMode={isViewMode}
             />
-            
+
             <h3>Share some basics about your place</h3>
-            <BasicInfoSection
-              formData={formData}
-              updateCount={updateCount}
-            />
+            <BasicInfoSection formData={formData} updateCount={updateCount} />
           </div>
-          
+
           <div className="create-listing_step2">
             <h2>Step 2: Make your place stand out</h2>
             <hr />
-            
+
             <h3>Tell guests what your place has to offer</h3>
             <div className="amenities">
               {facilities?.map((item, index) => (
                 <div
-                  className={`facility ${formData.amenities.includes(item.name) ? "selected" : ""}`}
+                  className={`facility ${
+                    formData.amenities.includes(item.name) ? "selected" : ""
+                  }`}
                   key={index}
                   onClick={() => handleAmenityToggle(item.name)}
                 >
@@ -149,10 +149,14 @@ const CreateListing = () => {
                 </div>
               ))}
             </div>
-            
+
             <h3>Add some photos of your place</h3>
             <DragDropContext onDragEnd={handleDragPhoto}>
-              <Droppable droppableId="photos" direction="horizontal" type="photo">
+              <Droppable
+                droppableId="photos"
+                direction="horizontal"
+                type="photo"
+              >
                 {(provided) => (
                   <div
                     className="photos"
@@ -177,7 +181,7 @@ const CreateListing = () => {
                         </label>
                       </>
                     )}
-                    
+
                     {formData.photos.length >= 1 && (
                       <>
                         {formData.photos.map((photo, index) => (
@@ -229,8 +233,10 @@ const CreateListing = () => {
                 )}
               </Droppable>
             </DragDropContext>
-            {errors.photos && <div className="error-message">{errors.photos}</div>}
-            
+            {errors.photos && (
+              <div className="error-message">{errors.photos}</div>
+            )}
+
             <div className="description">
               <p>Room's Name (Format: 101, 105-108)</p>
               <input
@@ -241,11 +247,15 @@ const CreateListing = () => {
                 onChange={handleDetailsChange}
               />
               {formData.roomNumbers.length > 0 && (
-                <p className="room-count">Total rooms: {formData.roomNumbers.length}</p>
+                <p className="room-count">
+                  Total rooms: {formData.roomNumbers.length}
+                </p>
               )}
-              {errors.name && <div className="error-message">{errors.name}</div>}
+              {errors.name && (
+                <div className="error-message">{errors.name}</div>
+              )}
             </div>
-            
+
             <div className="description">
               <p>Area</p>
               <input
@@ -255,9 +265,11 @@ const CreateListing = () => {
                 value={formData.details.area}
                 onChange={handleDetailsChange}
               />
-              {errors.area && <div className="error-message">{errors.area}</div>}
+              {errors.area && (
+                <div className="error-message">{errors.area}</div>
+              )}
             </div>
-            
+
             <h3>What make your place attractive and exciting?</h3>
             <div className="description">
               <p>Title</p>
@@ -268,8 +280,10 @@ const CreateListing = () => {
                 value={formData.details.title}
                 onChange={handleDetailsChange}
               />
-              {errors.title && <div className="error-message">{errors.title}</div>}
-              
+              {errors.title && (
+                <div className="error-message">{errors.title}</div>
+              )}
+
               <p>Description</p>
               <textarea
                 placeholder="Description"
@@ -277,8 +291,10 @@ const CreateListing = () => {
                 value={formData.details.description}
                 onChange={handleDetailsChange}
               />
-              {errors.description && <div className="error-message">{errors.description}</div>}
-              
+              {errors.description && (
+                <div className="error-message">{errors.description}</div>
+              )}
+
               <p>Now, set your PRICE</p>
               <span>VND</span>
               <input
@@ -290,27 +306,32 @@ const CreateListing = () => {
                 className="price"
                 min="0"
               />
-              {errors.price && <div className="error-message">{errors.price}</div>}
+              {errors.price && (
+                <div className="error-message">{errors.price}</div>
+              )}
             </div>
           </div>
-          
+
           <div className="pending-listings">
             <h3>Pending Listings</h3>
             {pendingListings.map((listing) => (
               <div key={listing.id} className="pending-listing">
                 <div className="pending-listing-info">
-                  <p>Building: {buildingName}</p>
-                  <p>Floor: {floorName}</p>
+                  <p>Building: {listing.buildingName}</p>
+                  <p>Floor: {listing.floorName}</p>
                   <p>Room: {listing.details.name}</p>
                   <p>Area: {listing.details.area}</p>
                   <p>Title: {listing.details.title}</p>
                   <p>Price: {listing.details.price} VND</p>
                   <p>Total Rooms: {listing.roomNumbers.length}</p>
-                  <p>Location: {listing.location.streetAddress}, {listing.location.district}, {listing.location.city}</p>
+                  <p>
+                    Location: {listing.location.streetAddress},{" "}
+                    {listing.location.district}, {listing.location.city}
+                  </p>
                   <p>Amenities: {listing.amenities.join(", ")}</p>
                 </div>
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   onClick={() => handleRemovePendingListing(listing.id)}
                   className="remove-listing-btn"
                 >
@@ -319,18 +340,18 @@ const CreateListing = () => {
               </div>
             ))}
           </div>
-          
+
           <div className="form-actions">
-            <button 
+            <button
               type="button"
               className="add-list"
               onClick={handleAddToList}
             >
               Add to List
             </button>
-            
-            <button 
-              className="submit-btn" 
+
+            <button
+              className="submit-btn"
               type="submit"
               disabled={isSubmitting}
             >
@@ -339,7 +360,7 @@ const CreateListing = () => {
           </div>
         </form>
       </div>
-      
+
       <Footer />
     </>
   );

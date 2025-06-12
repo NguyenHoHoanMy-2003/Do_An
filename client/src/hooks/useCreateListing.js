@@ -342,8 +342,18 @@ const useCreateListing = () => {
       listingForm.append("listingPhotos", photo);
     });
 
-    console.log("Attempting to submit listing with creatorId:", creatorId);
-    const token = localStorage.getItem("token");
+    // Lấy token đúng: ưu tiên lấy từ 'token', nếu không có thì lấy từ persist:auth
+    let token = localStorage.getItem("token");
+    if (!token) {
+      try {
+        const persistAuth = localStorage.getItem("persist:auth");
+        if (persistAuth) {
+          token = JSON.parse(persistAuth).token?.replace(/(^\"|\"$)/g, "");
+        }
+      } catch (e) {
+        token = null;
+      }
+    }
     console.log("Retrieved token:", token);
 
     const response = await fetch("http://localhost:5001/properties/create", {

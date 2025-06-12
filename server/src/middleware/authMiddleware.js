@@ -3,7 +3,7 @@ const { User } = require('../models');
 
 // Middleware xác thực JWT
 const verifyToken = async (req, res, next) => {
-    try {
+    try {   
         console.log("Received Authorization header:", req.headers.authorization);
         const token = req.headers.authorization?.split(' ')[1];
         

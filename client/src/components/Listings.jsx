@@ -80,12 +80,7 @@ const Listings = ({ onOpenPopup, onEditListing }) => {
                             style={{ transform: `translateX(-${currentSlide * 100}%)` }}
                         >
                             {listings.map((post) => (
-                                <ListingCard 
-                                    key={post.id_post} 
-                                    post={post} 
-                                    onOpenPopup={onOpenPopup} 
-                                    onEditListing={onEditListing}
-                                />
+                                <ListingCard key={post.id_post} post={post} onOpenPopup={onOpenPopup} />
                             ))}
                         </div>
                     </div>
@@ -94,6 +89,24 @@ const Listings = ({ onOpenPopup, onEditListing }) => {
                     </button>
                 </div>
             )}
+            <div className="category-list">
+                <div className="category-left">
+                    <h1>Our Best Facilities Provide You.</h1>
+                    <p>Our accommodations are thoughtfully designed to provide maximum comfort and relaxation, ensuring a truly memorable stay for every guest.</p>
+                </div>
+                <div className="category-right">
+                    {categories?.map((category, index) => (
+                        <div
+                            className={`category ${category.label === selectedCategory ? "selected" : ""}`}
+                            key={index}
+                            
+                        >
+                            <div className="category_icon">{category.icon}</div>
+                            <p>{category.label}</p>
+                        </div>
+                    ))}
+                </div>
+            </div>
         </div>
     );
 };

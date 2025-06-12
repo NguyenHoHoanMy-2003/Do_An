@@ -2,14 +2,15 @@ import React, { useState, useEffect } from "react";
 import "../styles/InfoManagement.scss";
 import Navbar from "../components/Navbar";
 import { useSelector } from "react-redux";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 
 const InfoManagement = () => {
-  const userId = useSelector(state => state.user?.user?.id_user) || localStorage.getItem("userId");
+  const userId =
+    useSelector((state) => state.user?.user?.id_user) ||
+    localStorage.getItem("userId");
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [showConfirmPopup, setShowConfirmPopup] = useState(false);
-  const [isEditDisabled, setIsEditDisabled] = useState(false);
   const [formData, setFormData] = useState({
     phone: "",
     password: "",
@@ -20,19 +21,20 @@ const InfoManagement = () => {
     cccd: "",
     issueDate: "",
     placeOfIssue: "",
-    address: ""
+    address: "",
   });
   const [loading, setLoading] = useState(true);
   const [successMsg, setSuccessMsg] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
+  const [canEdit, setCanEdit] = useState(false);
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const res = await fetch(`http://localhost:5001/users/${userId}`, {
           headers: {
-            "Authorization": `Bearer ${localStorage.getItem("token")}`
-          }
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
         });
         if (res.ok) {
           const data = await res.json();
@@ -41,16 +43,31 @@ const InfoManagement = () => {
             password: data.password || "",
             name: data.name || "",
             email: data.email || "",
-            dob: data.date_of_birth && !isNaN(new Date(data.date_of_birth)) ? new Date(data.date_of_birth).toISOString().split('T')[0] : "",
+            dob:
+              data.date_of_birth && !isNaN(new Date(data.date_of_birth))
+                ? new Date(data.date_of_birth).toISOString().split("T")[0]
+                : "",
             gender: data.gender || "",
             cccd: data.national_id || "",
-            issueDate: data.date_of_issue && !isNaN(new Date(data.date_of_issue)) ? new Date(data.date_of_issue).toISOString().split('T')[0] : "",
+            issueDate:
+              data.date_of_issue && !isNaN(new Date(data.date_of_issue))
+                ? new Date(data.date_of_issue).toISOString().split("T")[0]
+                : "",
             placeOfIssue: data.place_of_issue || "",
-            address: data.permanent_address || ""
+            address: data.permanent_address || "",
           });
+          if (isUserInfoComplete(data)) {
+            setIsEditing(false);
+            setCanEdit(false);
+          } else {
+            setIsEditing(true);
+            setCanEdit(true);
+          }
         } else {
           const errorData = await res.json();
-          setErrorMsg(errorData.message || "Không thể tải thông tin người dùng.");
+          setErrorMsg(
+            errorData.message || "Không thể tải thông tin người dùng."
+          );
         }
       } catch (err) {
         console.error("Lỗi fetch user:", err);
@@ -67,22 +84,34 @@ const InfoManagement = () => {
   }, [userId]);
 
   const handleChange = (e) => {
-    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleEdit = () => {
-    if (!isEditDisabled) {
-      setIsEditing(true);
+  const validateForm = () => {
+    if (
+      !formData.phone ||
+      !formData.password ||
+      !formData.name ||
+      !formData.cccd ||
+      !formData.issueDate ||
+      !formData.placeOfIssue ||
+      !formData.address
+    ) {
+      setErrorMsg("Vui lòng nhập đầy đủ tất cả các trường bắt buộc.");
+      return false;
     }
+    if (!/^\d{12}$/.test(formData.cccd)) {
+      setErrorMsg("CCCD phải đủ 12 số.");
+      return false;
+    }
+    setErrorMsg("");
+    return true;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (isEditing) {
-      setShowConfirmPopup(true);
-    } else {
-      handleEdit();
-    }
+    if (!validateForm()) return;
+    setShowConfirmPopup(true);
   };
 
   const handleConfirmSave = async () => {
@@ -93,16 +122,16 @@ const InfoManagement = () => {
       const res = await fetch(`http://localhost:5001/users/${userId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updateData)
+        body: JSON.stringify(updateData),
       });
 
       if (res.ok) {
         setSuccessMsg("Cập nhật thông tin thành công!");
         setIsEditing(false);
-        setIsEditDisabled(true);
+        setCanEdit(false);
         setShowConfirmPopup(false);
         setTimeout(() => {
-          navigate('/');
+          navigate("/");
         }, 2000);
       } else {
         const errorData = await res.json();
@@ -116,6 +145,19 @@ const InfoManagement = () => {
 
   const handleCancelSave = () => {
     setShowConfirmPopup(false);
+  };
+
+  const isUserInfoComplete = (data) => {
+    return (
+      data.phone &&
+      data.password &&
+      data.name &&
+      data.national_id &&
+      /^\d{12}$/.test(data.national_id) &&
+      data.date_of_issue &&
+      data.place_of_issue &&
+      data.permanent_address
+    );
   };
 
   if (loading) return <div>Loading...</div>;
@@ -234,13 +276,11 @@ const InfoManagement = () => {
               disabled={!isEditing}
             />
           </div>
-          <button 
-            type="submit" 
-            className={`edit-button ${isEditDisabled ? 'disabled' : ''}`}
-            disabled={isEditDisabled}
-          >
-            {isEditing ? "Save" : "Edit"}
-          </button>
+          {canEdit && (
+            <button type="submit" className="edit-button">
+              Save
+            </button>
+          )}
         </form>
 
         {showConfirmPopup && (
@@ -252,8 +292,12 @@ const InfoManagement = () => {
                 Sau khi save thì sẽ không được sửa gì nữa và vô hiệu button edit
               </div>
               <div className="confirm-buttons">
-                <button onClick={handleConfirmSave} className="confirm-yes">Có</button>
-                <button onClick={handleCancelSave} className="confirm-no">Không</button>
+                <button onClick={handleConfirmSave} className="confirm-yes">
+                  Có
+                </button>
+                <button onClick={handleCancelSave} className="confirm-no">
+                  Không
+                </button>
               </div>
             </div>
           </div>
