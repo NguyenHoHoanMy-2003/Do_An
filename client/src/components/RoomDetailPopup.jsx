@@ -71,7 +71,7 @@ const RoomDetailPopup = ({ post, onClose }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        console.log('Form Data Submitted for room:', selectedRoomItem, formData);
+        console.log('Form Data Submitted for room:', selectedSubRoom, formData);
         // Logic xử lý submit form (gửi lên backend) sẽ được thêm sau
         // onClose(); // Đóng popup sau khi submit thành công (hoặc thất bại)
     };
@@ -79,7 +79,7 @@ const RoomDetailPopup = ({ post, onClose }) => {
         // TEMP_SIMULATION_START: Cập nhật logic để dựa vào trạng thái giả lập của từng phòng
         // SẼ THAY THẾ BẰNG LOGIC TỪ DATABASE SAU NÀY!
         if (simulatedRoomStatuses[roomNumber] === 'available' || !simulatedRoomStatuses[roomNumber]) { // Nếu phòng chưa thuê hoặc không có trạng thái cụ thể (mặc định là available)
-            setSelectedRoomItem(roomNumber); 
+            setSelectedSubRoom(roomNumber); 
             // Reset form data khi chọn phòng mới
             setFormData({
                 hoTen: '',
@@ -89,11 +89,16 @@ const RoomDetailPopup = ({ post, onClose }) => {
                 cccdNoiCap: '',
             });
         } else {
-            setSelectedRoomItem(null); // Bỏ chọn nếu click vào phòng đã thuê
+            setSelectedSubRoom(null); // Bỏ chọn nếu click vào phòng đã thuê
         }
         // TEMP_SIMULATION_END
     };
 
+    const handleOverlayClick = useCallback((e) => {
+        if (e.target.className === "popup-overlay") {
+            onClose();
+        }
+    }, [onClose]);
 
     return (
         <div className="popup-overlay" onClick={handleOverlayClick}>
@@ -152,9 +157,9 @@ const RoomDetailPopup = ({ post, onClose }) => {
 
                     {/* TEMP_SIMULATION_START: Logic hiển thị form dựa trên trạng thái giả lập của phòng nhỏ được chọn */}
                     {/* SẼ THAY THẾ BẰNG (selectedRoomItem && room.individualRoomStatuses[selectedRoomItem] === 'available') HOẶC TƯƠNG TỰ */}
-                    {selectedRoomItem && (simulatedRoomStatuses[selectedRoomItem] === 'available' || !simulatedRoomStatuses[selectedRoomItem]) && (
+                    {selectedSubRoom && (simulatedRoomStatuses[selectedSubRoom] === 'available' || !simulatedRoomStatuses[selectedSubRoom]) && (
                         <div>
-                            <h3>Đăng ký thuê Phòng {selectedRoomItem}</h3>
+                            <h3>Đăng ký thuê Phòng {selectedSubRoom}</h3>
                             <form onSubmit={handleSubmit}>
                                 <div className="form-group">
                                     <label htmlFor="hoTen">Họ và tên:</label>

@@ -16,7 +16,6 @@ import PaymentHistory from "./pages/PaymentHistory";
 import PayBillRenter from "./pages/PayBillRenter";
 import ListRoom from "./pages/ListRoom";
 import AdminDashboard from "./pages/AdminDashboard";
-import ListRoom from "./pages/ListRoom";
 
 function App() {
   const user = useSelector(state => state.user?.user);

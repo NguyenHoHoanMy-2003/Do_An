@@ -38,6 +38,26 @@ exports.getAllUsers = async (req, res) => {
     }
 };
 
+// Lấy thông tin người dùng theo ID
+exports.getUserById = async (req, res) => {
+    try {
+        console.log("getUserById function hit!");
+        const { userId } = req.params;
+        const user = await User.findByPk(userId, {
+            attributes: { exclude: ['password'] } // Loại trừ mật khẩu
+        });
+
+        if (!user) {
+            return res.status(404).json({ message: "Không tìm thấy người dùng." });
+        }
+
+        res.json(user);
+    } catch (error) {
+        console.error("Get User by ID Error:", error);
+        res.status(500).json({ message: "Lỗi server khi lấy thông tin người dùng." });
+    }
+};
+
 // Cập nhật vai trò người dùng
 exports.updateUserRole = async (req, res) => {
     try {

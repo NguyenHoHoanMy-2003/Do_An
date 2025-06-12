@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import "../styles/Contracts.scss";
 import Navbar from "../components/Navbar";
-import { FaSearch, FaPrint, FaHistory } from "react-icons/fa";
+import { FaSearch, FaPrint, FaHistory, FaTrash } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 const ContractListPage = () => {
+  const navigate = useNavigate();
   const [contracts, setContracts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = useState(false);
@@ -81,9 +83,6 @@ const ContractListPage = () => {
     navigate('/contract-form', { state: { contractData: contract } });
   };
 
-  const handleDetailClick = (contract) => {
-    navigate('/contract-form', { state: { contractData: contract } });
-  };
   const handleDelete = async (contract) => {
     if (window.confirm(`Are you sure you want to delete this contract for Room ${contract.room}?`)) {
       try {
@@ -103,6 +102,7 @@ const ContractListPage = () => {
       }
     }
   };
+
   const isContractExpired = (endDate) => {
     return new Date(endDate) < new Date();
   };
