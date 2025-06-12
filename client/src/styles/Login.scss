@@ -28,13 +28,12 @@
       width: 80%;
     }
 
-    &_form {
+    .login_content_form {
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 15px;
 
-      // Style dùng chung cho tất cả các input
       .input-field {
         width: 100%;
         padding: 7px 15px;
@@ -50,23 +49,26 @@
         }
       }
 
-      // Trường mật khẩu có icon con mắt
       .password-field {
-        position: relative;
+        display: flex;
+        align-items: center;
         width: 100%;
 
         input {
           @extend .input-field;
-          padding-right: 40px; // chừa chỗ cho icon
+          flex: 1;
+          text-align: center;
+          padding-right: 15px;
+          margin-right: 0;
         }
 
         .eye-icon {
-          position: absolute;
-          right: 10px;
-          top: 50%;
-          transform: translateY(-50%);
+          margin-left: 0;
+          margin-right: 10px;
           cursor: pointer;
           color: white;
+          z-index: 2;
+          font-size: 18px;
         }
       }
 
@@ -78,7 +80,7 @@
         margin-top: 15px;
         @include buttonStyle;
         width: 50%;
-        font-family: 'Poppins', sans-serif;
+        font-family: "Poppins", sans-serif;
 
         &:hover {
           box-shadow: 0 0 10px 3px rgba(255, 255, 255);
@@ -99,15 +101,14 @@
       text-align: center;
     }
 
-    // Link "Recover Password"
     .recover-password {
       align-self: flex-end;
       color: white;
       text-decoration: none;
       font-size: 13px;
       font-weight: 600;
-      margin-top: -10px; // Điều chỉnh khoảng cách với button
-      margin-bottom: 10px; // Điều chỉnh khoảng cách với button
+      margin-top: -10px;
+      margin-bottom: 10px;
 
       &:hover {
         text-decoration: underline;
@@ -120,7 +121,7 @@
     justify-content: space-between;
     align-items: center;
     margin-top: 10px;
-    width: 100%; // Đảm bảo chiều rộng 100% để hai link nằm đối diện nhau
+    width: 100%;
 
     a {
       text-decoration: none;
@@ -128,19 +129,18 @@
       font-size: 13px;
       font-weight: 600;
       text-align: center;
-      font-family: 'Poppins', sans-serif;
+      font-family: "Poppins", sans-serif;
 
       &:hover {
         text-decoration: underline;
       }
 
       &:last-child {
-        text-align: right; // Căn phải cho link cuối cùng
+        text-align: right;
       }
     }
   }
 
-  // New styles for OR divider and social icons
   &_or {
     display: flex;
     align-items: center;

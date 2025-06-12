@@ -1,200 +1,302 @@
 // client/src/components/RoomDetailPopup.jsx
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useSelector } from "react-redux";
+import { Edit, Delete } from "@mui/icons-material";
+import { useNavigate } from "react-router-dom";
 import "../styles/RoomDetailPopup.scss";
 
+const RoomDetailPopup = ({
+  post,
+  onClose,
+  onDeleteSubRoom,
+  onDeleteListing,
+}) => {
+  // Redux state
+  const user = useSelector((state) => state.user.user);
+  const isHost = user?.role === "host";
 
-const RoomDetailPopup = ({ post, onClose }) => {
-    const roomData = post?.room; // Lấy dữ liệu phòng từ post
-    const listingPhotoPaths = post?.room?.images?.map(img => img.image_url) || [];
+  // Initialize useNavigate
+  const navigate = useNavigate();
 
-    // TEMP_SIMULATION_START: Trạng thái giả lập cho từng phòng nhỏ
-    // KHÔNG SỬ DỤNG KHI TÍCH HỢP VỚI DATABASE!
-    const [simulatedRoomStatuses, setSimulatedRoomStatuses] = useState({});
+  // Component state
+  const [selectedSubRoom, setSelectedSubRoom] = useState(null);
+  const [formData, setFormData] = useState({
+    hoTen: "",
+    soDienThoai: "",
+    cccdSo: "",
+    cccdNgayCap: "",
+    cccdNoiCap: "",
+  });
 
-    useEffect(() => {
-        const initialStatuses = {};
-        const roomItems = parseRoomName(roomData?.name);
-        // Đặt một số phòng là 'occupied' để giả lập
-        if (roomItems.length > 0) {
-            initialStatuses[roomItems[0]] = 'occupied'; // Giả lập phòng đầu tiên là đã thuê
-            if (roomItems.length > 2) {
-                initialStatuses[roomItems[2]] = 'occupied'; // Giả lập phòng thứ ba là đã thuê (nếu có)
+  // Derived data
+  const roomData = post?.room;
+  const listingPhotoPaths =
+    post?.room?.images?.map((img) => img.image_url) || [];
+  const subRooms = post?.room?.subRooms || [];
+
+  // Event handlers
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log("Form Data Submitted for room:", selectedSubRoom, formData);
+  };
+
+  const handleRoomItemClick = (roomObj) => {
+    if (roomObj.status === "available") {
+      setSelectedSubRoom(roomObj);
+      setFormData({
+        hoTen: "",
+        soDienThoai: "",
+        cccdSo: "",
+        cccdNgayCap: "",
+        cccdNoiCap: "",
+      });
+    } else {
+      setSelectedSubRoom(null);
+    }
+  };
+
+  const handleOverlayClick = useCallback(
+    (e) => {
+      if (e.target.className === "popup-overlay") {
+        onClose();
+      }
+    },
+    [onClose]
+  );
+
+  const handleEditListing = () => {
+    onClose();
+    navigate(`/edit-listing/${post.id_post}`);
+  };
+
+  // Render functions
+  const renderImageGallery = () => (
+    <div className="image-gallery">
+      {listingPhotoPaths.length > 0 ? (
+        listingPhotoPaths.map((photo, index) => (
+          <img
+            key={index}
+            src={
+              photo.startsWith("http") ? photo : `http://localhost:5001${photo}`
             }
-        }
-        setSimulatedRoomStatuses(initialStatuses);
-    }, [roomData?.name]);
-    // TEMP_SIMULATION_END
+            alt={`photo ${index + 1}`}
+          />
+        ))
+      ) : (
+        <img src="/assets/no-image.png" alt="no img" />
+      )}
+    </div>
+  );
 
-    const [formData, setFormData] = useState({
-        hoTen: '',
-        soDienThoai: '',
-        cccdSo: '',
-        cccdNgayCap: '',
-        cccdNoiCap: '',
-    });
-    const [selectedRoomItem, setSelectedRoomItem] = useState(null); // State để theo dõi phòng nhỏ được chọn
+  const renderRoomInfo = () => (
+    <div className="info-list">
+      <p>
+        <strong>Địa chỉ:</strong> {post?.address || "Không rõ"}
+      </p>
+      <p>
+        <strong>Dãy:</strong> {post?.property?.name_bd || "Không rõ"}
+      </p>
+      <p>
+        <strong>Tầng:</strong> {post?.room?.floor?.name || "Không rõ"}
+      </p>
+      <p>
+        <strong>Phòng:</strong> {roomData?.name || "Không rõ"}
+      </p>
+      <p>
+        <strong>Loại:</strong> {post?.Category?.value || "Không rõ"}
+      </p>
+      <p>
+        <strong>Giá:</strong>{" "}
+        {post?.Attribute?.price ? `${post.Attribute.price} VND` : "Không rõ"}
+      </p>
+    </div>
+  );
 
-    // Function để phân tích tên phòng thành danh sách các số phòng
-    const parseRoomName = (name) => {
-        if (!name) return [];
-        name = name.trim();
-        if (name.includes('-')) {
-            const parts = name.split('-');
-            if (parts.length === 2) {
-                const start = parseInt(parts[0], 10);
-                const end = parseInt(parts[1], 10);
-                if (!isNaN(start) && !isNaN(end) && start <= end) {
-                    const rooms = [];
-                    for (let i = start; i <= end; i++) {
-                        rooms.push(i.toString());
-                    }
-                    return rooms;
-                }
-            }
-        } else if (name.includes(',')) {
-            return name.split(',').map(item => item.trim()).filter(item => item !== '');
-        } else if (name !== '') {
-            return [name];
-        }
-        return [];
-    };
-
-    const roomItems = parseRoomName(roomData?.name);
-
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setFormData({
-            ...formData,
-            [name]: value,
-        });
-    };
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        console.log('Form Data Submitted for room:', selectedRoomItem, formData);
-        // Logic xử lý submit form (gửi lên backend) sẽ được thêm sau
-        // onClose(); // Đóng popup sau khi submit thành công (hoặc thất bại)
-    };
-    const handleRoomItemClick = (roomNumber) => {
-        // TEMP_SIMULATION_START: Cập nhật logic để dựa vào trạng thái giả lập của từng phòng
-        // SẼ THAY THẾ BẰNG LOGIC TỪ DATABASE SAU NÀY!
-        if (simulatedRoomStatuses[roomNumber] === 'available' || !simulatedRoomStatuses[roomNumber]) { // Nếu phòng chưa thuê hoặc không có trạng thái cụ thể (mặc định là available)
-            setSelectedRoomItem(roomNumber); 
-            // Reset form data khi chọn phòng mới
-            setFormData({
-                hoTen: '',
-                soDienThoai: '',
-                cccdSo: '',
-                cccdNgayCap: '',
-                cccdNoiCap: '',
-            });
-        } else {
-            setSelectedRoomItem(null); // Bỏ chọn nếu click vào phòng đã thuê
-        }
-        // TEMP_SIMULATION_END
-    };
-
-
-    return (
-        <div className="popup-overlay" onClick={onClose}>
-            <div className="popup-content" onClick={e => e.stopPropagation()}>
-            <div className="left-panel">
-                    <h2>{post?.title || 'Chi tiết Listing'}</h2>
-                    {listingPhotoPaths.length > 0 ? (
-                        listingPhotoPaths.map((photo, index) => (
-                            <img
-                                key={index}
-                                src={photo.startsWith("http") ? photo : `http://localhost:5001${photo}`}
-                                alt={`photo ${index + 1}`}
-                            />
-                        ))
-                    ) : (
-                        <img src="/assets/no-image.png" alt="no img" />
-                    )}
-                    <p><strong>Địa chỉ:</strong> {post?.address || 'Không rõ'}</p>
-                    <p><strong>Dãy:</strong> {post?.Property?.name_bd || 'Không rõ'}</p>
-                    <p><strong>Tầng:</strong> {post?.room?.floor?.name || 'Không rõ'}</p>
-                    <p><strong>Phòng:</strong> {roomData?.name || 'Không rõ'}</p>
-                    <p><strong>Loại:</strong> {post?.Category?.value || 'Không rõ'}</p>
-                    <p><strong>Giá:</strong> {post?.Attribute?.price ? `${post.Attribute.price} VND` : 'Không rõ'}</p>
-                    {/* Thêm thông tin khác nếu cần */}
-                </div>
-
-                <div className="right-panel">
-                    <h2>Các phòng</h2>
-                    <div className="room-list">
-                        {roomItems.length > 0 ? (
-                            roomItems.map(item => {
-                                // TEMP_SIMULATION_START: Sử dụng trạng thái giả lập cho từng phòng
-                                // SẼ THAY THẾ BẰNG room.individualRoomStatuses[item] HOẶC TƯƠNG TỰ TỪ DATABASE!
-                                const isRoomOccupied = simulatedRoomStatuses[item] === 'occupied';
-                                const roomStatusText = isRoomOccupied ? 'Đã thuê' : 'Chưa thuê';
-                                const roomStatusClass = isRoomOccupied ? 'occupied' : 'available';
-                                // TEMP_SIMULATION_END
-
-                                return (
-                                    <div
-                                        key={item}
-                                        className={`room-item ${roomStatusClass}`} // Sử dụng class từ trạng thái giả lập
-                                        onClick={() => handleRoomItemClick(item)} 
-                                    >
-                                        Phòng {item} ({roomStatusText})
-                                    </div>
-                                );
-                            })
-                        ) : (
-                            <p>Không có thông tin phòng cụ thể.</p>
-                        )}
-                    </div>
-
-                    {/* TEMP_SIMULATION_START: Logic hiển thị form dựa trên trạng thái giả lập của phòng nhỏ được chọn */}
-                    {/* SẼ THAY THẾ BẰNG (selectedRoomItem && room.individualRoomStatuses[selectedRoomItem] === 'available') HOẶC TƯƠNG TỰ */}
-                    {selectedRoomItem && (simulatedRoomStatuses[selectedRoomItem] === 'available' || !simulatedRoomStatuses[selectedRoomItem]) && (
-                        <div>
-                            <h3>Đăng ký thuê Phòng {selectedRoomItem}</h3>
-                            <form onSubmit={handleSubmit}>
-                                <div>
-                                    <label htmlFor="hoTen">Họ và tên:</label>
-                                    <input type="text" id="hoTen" name="hoTen" value={formData.hoTen} onChange={handleInputChange} required />
-                                </div>
-                                <div>
-                                    <label htmlFor="soDienThoai">Số điện thoại:</label>
-                                    <input type="text" id="soDienThoai" name="soDienThoai" value={formData.soDienThoai} onChange={handleInputChange} required />
-                                </div>
-                                <div>
-                                    <label htmlFor="cccdSo">CCCD:</label>
-                                    <input type="text" id="cccdSo" name="cccdSo" value={formData.cccdSo} onChange={handleInputChange} placeholder="Số CCCD" required />
-                                </div>
-                                <div>
-                                    <label htmlFor="cccdNgayCap">Ngày cấp:</label>
-                                    <input type="text" id="cccdNgayCap" name="cccdNgayCap" value={formData.cccdNgayCap} onChange={handleInputChange} placeholder="dd/mm/yyyy" required />
-                                </div>
-                                <div>
-                                    <label htmlFor="cccdNoiCap">Nơi cấp:</label>
-                                    <input type="text" id="cccdNoiCap" name="cccdNoiCap" value={formData.cccdNoiCap} onChange={handleInputChange} placeholder="Nơi cấp" required />
-                                </div>
-                                <button type="submit">Đăng ký</button>
-                            </form>
-                        </div>
-                    )}
-                    {/* TEMP_SIMULATION_END */}
-
-                    {/* TEMP_SIMULATION_START: Hiển thị thông báo khi tất cả các phòng nhỏ đã thuê hoặc phòng chung đã thuê */}
-                    {/* SẼ THAY THẾ BẰNG LOGIC KIỂM TRA TRẠNG THÁI CỦA TỪNG PHÒNG TỪ DATABASE */} 
-                    {roomItems.every(item => simulatedRoomStatuses[item] === 'occupied') && (
-                        <p style={{ color: 'red' }}>Tất cả các phòng trong listing này đã được thuê.</p>
-                    )}
-                    {/* XÓA PHẦN NÀY KHI TÍCH HỢP DATABASE: roomData?.status !== 'available' && ( */}
-                    {/*  <p style={{ color: 'red' }}>Phòng chung này được thuê.</p> */}
-                    {/* ) */}
-                    {/* TEMP_SIMULATION_END */}
-
-                </div>
-
-                <button onClick={onClose} className="close-button">×</button> {/* Use close-button class */}
-            </div>
-        </div>
+  const renderHostActions = () =>
+    isHost && (
+      <div className="room-actions">
+        <button className="btn edit-listing-btn" onClick={handleEditListing}>
+          <Edit /> Sửa bài đăng
+        </button>
+        {selectedSubRoom && (
+          <button
+            className="btn delete-room-btn"
+            onClick={() => onDeleteSubRoom(post.id_post, selectedSubRoom)}
+          >
+            <Delete /> Xóa phòng
+          </button>
+        )}
+        <button
+          className="btn delete-listing-btn"
+          onClick={() => onDeleteListing(post.id_post)}
+        >
+          <Delete /> Xóa bài đăng
+        </button>
+      </div>
     );
+
+  const renderRoomList = () => (
+    <div className="room-list">
+      {subRooms.length > 0 ? (
+        subRooms.map((item) => {
+          const isRoomOccupied = item.status === "occupied";
+          const roomStatusText = isRoomOccupied ? "Đã thuê" : "Chưa thuê";
+          const roomStatusClass = isRoomOccupied ? "occupied" : "available";
+          return (
+            <div
+              key={item.name}
+              className={`room-item ${roomStatusClass}`}
+              onClick={() => handleRoomItemClick(item)}
+            >
+              Phòng {item.name} ({roomStatusText})
+            </div>
+          );
+        })
+      ) : (
+        <p>Không có thông tin phòng cụ thể hoặc tất cả phòng đã bị xóa.</p>
+      )}
+    </div>
+  );
+
+  const renderRegistrationForm = () =>
+    selectedSubRoom &&
+    (selectedSubRoom.status === "available" || !selectedSubRoom) && (
+      <div>
+        <h3>Đăng ký thuê Phòng {selectedSubRoom?.name || "Không rõ"}</h3>
+        <div className="room-detail-popup">
+          <form onSubmit={handleSubmit}>
+            <div className="form-group">
+              <label htmlFor="hoTen">Họ và tên:</label>
+              <input
+                type="text"
+                id="hoTen"
+                name="hoTen"
+                value={formData.hoTen}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="soDienThoai">Số điện thoại:</label>
+              <input
+                type="text"
+                id="soDienThoai"
+                name="soDienThoai"
+                value={formData.soDienThoai}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="cccdSo">CCCD:</label>
+              <input
+                type="text"
+                id="cccdSo"
+                name="cccdSo"
+                value={formData.cccdSo}
+                onChange={handleInputChange}
+                placeholder="Số CCCD"
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="cccdNgayCap">Ngày cấp:</label>
+              <input
+                type="text"
+                id="cccdNgayCap"
+                name="cccdNgayCap"
+                value={formData.cccdNgayCap}
+                onChange={handleInputChange}
+                placeholder="dd/mm/yyyy"
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="cccdNoiCap">Nơi cấp:</label>
+              <input
+                type="text"
+                id="cccdNoiCap"
+                name="cccdNoiCap"
+                value={formData.cccdNoiCap}
+                onChange={handleInputChange}
+                placeholder="Nơi cấp"
+                required
+              />
+            </div>
+            <button type="submit">Đăng ký</button>
+          </form>
+        </div>
+      </div>
+    );
+
+  useEffect(() => {
+    if (
+      selectedSubRoom &&
+      selectedSubRoom.status === "available" &&
+      user?.id_user
+    ) {
+      fetch(`http://localhost:5001/users/public/${user.id_user}`)
+        .then((res) => res.json())
+        .then((userData) => {
+          setFormData({
+            hoTen: userData.name || "",
+            soDienThoai: userData.phone || "",
+            cccdSo: userData.national_id || "",
+            cccdNgayCap: userData.date_of_issue
+              ? new Date(userData.date_of_issue).toLocaleDateString("vi-VN")
+              : "",
+            cccdNoiCap: userData.place_of_issue || "",
+          });
+        })
+        .catch((err) => {
+          setFormData({
+            hoTen: "",
+            soDienThoai: "",
+            cccdSo: "",
+            cccdNgayCap: "",
+            cccdNoiCap: "",
+          });
+        });
+    }
+  }, [selectedSubRoom, user]);
+
+  return (
+    <div className="popup-overlay" onClick={handleOverlayClick}>
+      <div className="popup-content" onClick={(e) => e.stopPropagation()}>
+        <div className="left-panel">
+          <h2>{post?.title || "Chi tiết Phòng"}</h2>
+          {renderImageGallery()}
+          {renderRoomInfo()}
+        </div>
+
+        <div className="right-panel">
+          {renderHostActions()}
+          <h2>Các phòng</h2>
+          {renderRoomList()}
+          {renderRegistrationForm()}
+
+          {subRooms.length > 0 &&
+            subRooms.every((item) => item.status === "occupied") && (
+              <p style={{ color: "red" }}>
+                Tất cả các phòng trong listing này đã được thuê.
+              </p>
+            )}
+        </div>
+
+        <button onClick={onClose} className="close-button">
+          ×
+        </button>
+      </div>
+    </div>
+  );
 };
 
 export default RoomDetailPopup;

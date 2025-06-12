@@ -1,22 +1,28 @@
 import React, { useState, useEffect } from "react";
 import "../styles/Contracts.scss";
 import Navbar from "../components/Navbar";
-import { FaSearch, FaPrint, FaHistory } from "react-icons/fa";
+import { FaSearch, FaPrint, FaHistory, FaTrash } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 const ContractListPage = () => {
+  const navigate = useNavigate();
   const [contracts, setContracts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [selectedContract, setSelectedContract] = useState(null);
   const [newEndDate, setNewEndDate] = useState("");
-  const [view, setView] = useState("confirmed");
+  const [view, setView] = useState("pending");
+
 
   useEffect(() => {
     const fetchContracts = async () => {
       try {
         const response = await fetch("http://localhost:5001/contracts");
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const data = await response.json();
-        setContracts(data);
+        setContracts(data.contracts || []);
       } catch (error) {
         console.error("Lỗi khi tải danh sách hợp đồng:", error);
       }
@@ -73,6 +79,33 @@ const ContractListPage = () => {
     closeModal();
   };
 
+  const handleDetailClick = (contract) => {
+    navigate('/contract-form', { state: { contractData: contract } });
+  };
+
+  const handleDelete = async (contract) => {
+    if (window.confirm(`Are you sure you want to delete this contract for Room ${contract.room}?`)) {
+      try {
+        const response = await fetch(`http://localhost:5001/contracts/${contract.id}`, {
+          method: 'DELETE',
+        });
+
+        if (response.ok) {
+          setContracts(prev => prev.filter(c => c.id !== contract.id));
+          alert('Contract deleted successfully!');
+        } else {
+          alert('Error deleting contract');
+        }
+      } catch (error) {
+        console.error('Error deleting contract:', error);
+        alert('Error deleting contract');
+      }
+    }
+  };
+
+  const isContractExpired = (endDate) => {
+    return new Date(endDate) < new Date();
+  };
   return (
     <div>
       <Navbar />
@@ -151,7 +184,7 @@ const ContractListPage = () => {
               </thead>
               <tbody>
                 {filtered
-                  .filter((c) => c.status === "confirmed")
+                  .filter((c) => c.status === "confirmed" || c.status === "disabled")
                   .map((c) => (
                     <tr key={c.id}>
                       <td>{c.room}</td>
@@ -160,14 +193,26 @@ const ContractListPage = () => {
                       <td>{new Date(c.endDate).toLocaleDateString('en-GB')}</td>
                       <td>{c.price.toLocaleString('en-GB')} VND</td>
                       <td>
-                        <span className="status confirmed">Confirmed</span>
+                        <span className={`status ${c.status === "disabled" ? "disabled" : "confirmed"}`}>
+                          {c.status === "disabled" ? "Disabled" : "Confirmed"}
+                        </span>
                       </td>
                       <td className="actions-cell">
-                        <button onClick={() => openModal(c)} className="btn small">
+                        <button
+                          onClick={() => openModal(c)}
+                          className="btn small"
+                          disabled={c.status !== 'disabled' && isContractExpired(c.endDate)}
+                        >
                           Renew
                         </button>
                         <button className="btn small print">
                           <FaPrint /> Print
+                        </button>
+                        <button
+                          className="btn small delete"
+                          onClick={() => handleDelete(c)}
+                        >
+                          <FaTrash /> Delete
                         </button>
                       </td>
                     </tr>

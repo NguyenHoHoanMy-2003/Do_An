@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import "../styles/Login.scss";
-import { setLogin } from '../redux/state';
-import { useDispatch } from 'react-redux';
-import { Link, useNavigate } from 'react-router-dom';
+import { setLogin } from "../redux/state";
+import { useDispatch } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa"; // 👈 Thêm icon con mắt
 import { useSelector } from "react-redux";
-
 
 const LoginPage = () => {
   const [phone, setPhone] = useState("");
@@ -17,60 +16,60 @@ const LoginPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const reduxUser = useSelector((state) => state.user.user);
-  console.log("Redux user state:", reduxUser);  // 👈 XEM TRONG CONSOLE
+  console.log("Redux user state:", reduxUser); // 👈 XEM TRONG CONSOLE
 
   const togglePasswordVisibility = () => {
-    setShowPassword(prev => !prev);
+    setShowPassword((prev) => !prev);
   };
-    
-    const validateInputs = () => {
-      const newErrors = {};
-  
-      if (!phone.trim()) {
-        newErrors.phone = "Số điện thoại không được để trống";
-      }
-      if (!password.trim()) {
-        newErrors.password = "Mật khẩu không được để trống";
-      }
-  
-      const phoneRegex = /^[0-9]{9,12}$/;
-      const passwordRegex = /^[a-zA-Z0-9]+$/;
-  
-      if (phone && !phoneRegex.test(phone)) {
-        newErrors.phone = "Số điện thoại không hợp lệ";
-      }
-      if (password && !passwordRegex.test(password)) {
-        newErrors.password = "Mật khẩu không được chứa ký tự đặc biệt";
-      }
-  
-      if (/\s/.test(phone)) {
-        newErrors.phone = "Số điện thoại không được chứa khoảng trắng";
-      }
-      if (/\s/.test(password)) {
-        newErrors.password = "Mật khẩu không được chứa khoảng trắng";
-      }
-  
-      if (password.length < 6) {
-        newErrors.password = "Mật khẩu phải có ít nhất 6 ký tự";
-      }
-  
-      setErrors(newErrors);
-      return Object.keys(newErrors).length === 0;
-    };
-  
-    const handleSubmit = async (e) => {
-      e.preventDefault();
-      setServerError("");
-  
-      if (!validateInputs()) return;
-  
+
+  const validateInputs = () => {
+    const newErrors = {};
+
+    if (!phone.trim()) {
+      newErrors.phone = "Số điện thoại không được để trống";
+    }
+    if (!password.trim()) {
+      newErrors.password = "Mật khẩu không được để trống";
+    }
+
+    const phoneRegex = /^[0-9]{9,12}$/;
+    const passwordRegex = /^[a-zA-Z0-9]+$/;
+
+    if (phone && !phoneRegex.test(phone)) {
+      newErrors.phone = "Số điện thoại không hợp lệ";
+    }
+    if (password && !passwordRegex.test(password)) {
+      newErrors.password = "Mật khẩu không được chứa ký tự đặc biệt";
+    }
+
+    if (/\s/.test(phone)) {
+      newErrors.phone = "Số điện thoại không được chứa khoảng trắng";
+    }
+    if (/\s/.test(password)) {
+      newErrors.password = "Mật khẩu không được chứa khoảng trắng";
+    }
+
+    if (password.length < 6) {
+      newErrors.password = "Mật khẩu phải có ít nhất 6 ký tự";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setServerError("");
+
+    if (!validateInputs()) return;
+
     try {
       const response = await fetch("http://localhost:5001/auth/login", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify({ phone, password })
+        body: JSON.stringify({ phone, password }),
       });
 
       const result = await response.json();
@@ -78,15 +77,46 @@ const LoginPage = () => {
 
       if (response.ok) {
         console.log("✅ result.user:", result.user); // 👈 thêm dòng này để kiểm tra
-        dispatch(setLogin({
-          user: {
-            id_user: result.user?.id_user,
-            name: result.user?.name,
-            role: result.user?.role, // Thêm dòng này để lưu role vào redux
-          },
-          token: result.token
-        }));
-        navigate("/");
+        dispatch(
+          setLogin({
+            user: {
+              id_user: result.user?.id_user,
+              name: result.user?.name,
+              role: result.user?.role, // Thêm dòng này để lưu role vào redux
+            },
+            token: result.token,
+          })
+        );
+        localStorage.setItem("token", result.token);
+        // Fetch user info để kiểm tra đủ trường chưa
+        const userRes = await fetch(
+          `http://localhost:5001/users/${result.user?.id_user}`,
+          {
+            headers: { Authorization: `Bearer ${result.token}` },
+          }
+        );
+        if (userRes.ok) {
+          const userData = await userRes.json();
+          // Kiểm tra các trường bắt buộc
+          const isMissing =
+            !userData.phone ||
+            !userData.password ||
+            !userData.name ||
+            !userData.national_id ||
+            !userData.date_of_issue ||
+            !userData.place_of_issue ||
+            !userData.permanent_address;
+          // Kiểm tra CCCD đúng 12 số
+          const cccdValid = /^\d{12}$/.test(userData.national_id || "");
+          if (isMissing || !cccdValid) {
+            navigate("/info");
+          } else {
+            navigate("/");
+          }
+        } else {
+          // Nếu không fetch được user info thì vẫn cho vào /info để bổ sung
+          navigate("/info");
+        }
       } else {
         setServerError(result.message || "Đăng nhập thất bại!");
       }
@@ -97,13 +127,13 @@ const LoginPage = () => {
   };
 
   return (
-    <div className='login'>
-      <div className='login_content'>
-        <form className='login_content_form' onSubmit={handleSubmit}>
+    <div className="login">
+      <div className="login_content">
+        <form className="login_content_form" onSubmit={handleSubmit}>
           <input
             name="phone"
             type="tel"
-            placeholder='Số điện thoại'
+            placeholder="Số điện thoại"
             className="input-field"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
@@ -124,7 +154,9 @@ const LoginPage = () => {
           </div>
           {errors.password && <p style={{ color: "red" }}>{errors.password}</p>}
 
-          <button name ="login_button" type="submit">Đăng nhập</button>
+          <button name="login_button" type="submit">
+            Đăng nhập
+          </button>
           {serverError && <p style={{ color: "red" }}>{serverError}</p>}
         </form>
 
@@ -145,8 +177,8 @@ const LoginPage = () => {
 
         <div className="login_links">
           <a href="/">Main page</a>
-            <a href="/register">Don't have an account? Sign up here</a>
-          </div>
+          <a href="/register">Don't have an account? Sign up here</a>
+        </div>
       </div>
     </div>
   );

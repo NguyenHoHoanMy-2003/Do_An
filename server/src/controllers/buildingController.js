@@ -1,5 +1,5 @@
 // controllers/buildingController.js
-const { Property, District, City, Floor, User } = require("../models");
+const { Property, District, City, Floor, User, Room, Image } = require("../models");
 const { v4: uuidv4 } = require("uuid");
 
 // Check if building exists
@@ -56,6 +56,8 @@ exports.createBuilding = async (req, res) => {
         // Lấy creatorId từ user đã được kiểm tra bởi middleware
         const creatorId = req.user.id_user;
 
+        console.log("Creating building with data:", { name, street_address, district, city, description, creatorId });
+
         // Kiểm tra building đã tồn tại
         const existingBuilding = await Property.findOne({
             where: { name_bd: name }
@@ -103,15 +105,25 @@ exports.createBuilding = async (req, res) => {
             }
         }
 
+        // Kiểm tra dữ liệu trước khi tạo
+        if (!name) {
+            return res.status(400).json({
+                message: "Building name is required",
+                error: "name_bd cannot be null"
+            });
+        }
+
         const building = await Property.create({
             id_property: uuidv4(),
             name_bd: name,
-            host_id: creatorId, // Sử dụng creatorId từ user đã được kiểm tra
-            street_address: street_address,
+            host_id: creatorId,
+            street_address: street_address || null,
             district_id: districtId,
             city_id: cityId,
             description: description || null
         });
+
+        console.log("Building created successfully:", building.toJSON());
 
         res.status(201).json({
             message: "Building created successfully",
@@ -125,7 +137,11 @@ exports.createBuilding = async (req, res) => {
         console.error("Create Building Error:", error);
         res.status(500).json({ 
             message: "Server error when creating building",
-            error: error.message 
+            error: error.message,
+            details: error.errors ? error.errors.map(e => ({
+                field: e.path,
+                message: e.message
+            })) : null
         });
     }
 };
@@ -188,20 +204,67 @@ exports.deleteBuilding = async (req, res) => {
     try {
         const { buildingId } = req.params;
 
+        console.log("Attempting to delete building:", buildingId);
+
         // Tìm tòa nhà theo ID
-        const building = await Property.findByPk(buildingId);
+        const building = await Property.findByPk(buildingId, {
+            include: [
+                {
+                    model: Floor,
+                    as: 'floors',
+                    include: [
+                        {
+                            model: Room,
+                            as: 'rooms',
+                            include: [
+                                {
+                                    model: Image,
+                                    as: 'images'
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        });
 
         if (!building) {
+            console.log("Building not found:", buildingId);
             return res.status(404).json({ message: "Building not found" });
         }
 
-        // Xóa tòa nhà (sẽ xóa tất cả tầng và phòng liên quan nhờ cơ chế cascading)
-        await building.destroy();
+        console.log("Found building with floors:", building.floors?.length || 0);
 
-        res.status(200).json({ message: "Building and all associated floors/rooms deleted successfully" });
+        // Xóa theo thứ tự: ảnh -> phòng -> tầng -> tòa nhà
+        for (const floor of building.floors || []) {
+            for (const room of floor.rooms || []) {
+                // Xóa tất cả ảnh của phòng
+                if (room.images && room.images.length > 0) {
+                    console.log(`Deleting ${room.images.length} images for room ${room.id_room}`);
+                    await Image.destroy({
+                        where: { room_id: room.id_room }
+                    });
+                }
+            }
+        }
+
+        // Xóa tòa nhà (sẽ tự động xóa các tầng và phòng liên quan nhờ cơ chế cascading)
+        await building.destroy();
+        
+        // Kiểm tra xem tòa nhà đã thực sự bị xóa chưa
+        const buildingStillExists = await Property.findByPk(buildingId);
+        if (buildingStillExists) {
+            throw new Error("Building was not deleted successfully");
+        }
+
+        console.log("Building deleted successfully:", buildingId);
+        res.status(200).json({ message: "Building and all associated data deleted successfully" });
     } catch (error) {
         console.error("Delete Building Error:", error);
-        res.status(500).json({ message: "Server error when deleting building" });
+        res.status(500).json({ 
+            message: "Server error when deleting building",
+            error: error.message
+        });
     }
 };
 // Giải thích:

@@ -3,14 +3,15 @@ const express = require("express");
 const router = express.Router();
 const upload = require("../middleware/uploadImages");
 const postController = require("../controllers/postController");
+const { verifyToken, isHost } = require("../middleware/authMiddleware");
 
-// Route tạo bài đăng mới
-router.post("/create", upload.array("listingPhotos"), postController.createPost);
-
-// Route lấy danh sách bài đăng (hiển thị mainpage)
+// Public routes
 router.get("/", postController.getPosts);
 
-// Check if listing exists (new)
-router.post("/check-listing", postController.checkListingExists);
+// Protected routes
+router.post("/check-listing", verifyToken, postController.checkListingExists);
+router.post("/create", [verifyToken, isHost, upload.array("listingPhotos")], postController.createPost);
+router.put("/:postId", [verifyToken, isHost, upload.array("listingPhotos")], postController.updatePost);
+router.delete("/:postId", [verifyToken, isHost], postController.deletePost);
 
 module.exports = router;

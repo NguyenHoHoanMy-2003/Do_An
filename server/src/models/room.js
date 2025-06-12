@@ -12,17 +12,21 @@ module.exports = (sequelize, DataTypes) => {
       });
       Room.belongsTo(models.Property, {
         foreignKey: 'property_id',
-        as: 'property'
+        as: 'property',
+        onDelete: 'CASCADE'
       });
       Room.belongsTo(models.Floor, {
         foreignKey: 'floor_id',
-        as: 'floor'
+        as: 'floor',
+        onDelete: 'CASCADE'
       });
+
       Room.belongsTo(models.Category, {
         foreignKey: 'category_id',
         as: 'category'
       });
 
+      Room.hasMany(models.SubRoom, { foreignKey: 'room_id', as: 'subRooms' });
     }
   }
 
@@ -45,10 +49,6 @@ module.exports = (sequelize, DataTypes) => {
     bedroom_count: DataTypes.INTEGER,
     bed_count: DataTypes.INTEGER,
     bathroom_count: DataTypes.INTEGER,
-    status: {
-      type: DataTypes.ENUM('available', 'occupied', 'pending', 'disabled'),
-      defaultValue: 'available'
-    },
     description: DataTypes.STRING
   }, {
     sequelize,

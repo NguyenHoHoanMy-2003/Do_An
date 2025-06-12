@@ -1,5 +1,5 @@
 // controllers/floorController.js
-const { Floor, Property } = require("../models");
+const { Floor, Property, Room, Image } = require("../models");
 const { v4: uuidv4 } = require("uuid");
 
 // Get floors for a building
@@ -113,14 +113,38 @@ exports.deleteFloor = async (req, res) => {
     try {
         const { floorId } = req.params;
 
-        const floor = await Floor.findByPk(floorId);
+        // Tìm tầng và lấy thông tin về các phòng và ảnh
+        const floor = await Floor.findByPk(floorId, {
+            include: [
+                {
+                    model: Room,
+                    as: 'rooms',
+                    include: [
+                        {
+                            model: Image,
+                            as: 'images'
+                        }
+                    ]
+                }
+            ]
+        });
+
         if (!floor) {
             return res.status(404).json({ message: "Floor not found" });
         }
 
+        // Xóa theo thứ tự: ảnh -> phòng -> tầng
+        for (const room of floor.rooms) {
+            // Xóa tất cả ảnh của phòng
+            await Image.destroy({
+                where: { room_id: room.id_room }
+            });
+        }
+
+        // Xóa tầng (sẽ tự động xóa các phòng liên quan nhờ cơ chế cascading)
         await floor.destroy();
 
-        res.status(200).json({ message: "Floor deleted successfully" });
+        res.status(200).json({ message: "Floor and all associated data deleted successfully" });
     } catch (error) {
         console.error("Delete Floor Error:", error);
         res.status(500).json({ message: "Server error when deleting floor" });

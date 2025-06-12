@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -314,7 +313,7 @@ const useCreateListing = () => {
   const submitListing = async (listingData) => {
     const listingForm = new FormData();
 
-    listingForm.append("creatorId", listingData.creatorId);
+    listingForm.append("creatorId", creatorId);
     listingForm.append("category", listingData.category);
     listingForm.append("type", listingData.type);
     listingForm.append("buildingName", listingData.buildingName || buildingName);
@@ -343,8 +342,26 @@ const useCreateListing = () => {
       listingForm.append("listingPhotos", photo);
     });
 
+    // Lấy token đúng: ưu tiên lấy từ 'token', nếu không có thì lấy từ persist:auth
+    let token = localStorage.getItem("token");
+    if (!token) {
+      try {
+        const persistAuth = localStorage.getItem("persist:auth");
+        if (persistAuth) {
+          token = JSON.parse(persistAuth).token?.replace(/(^\"|\"$)/g, "");
+        }
+      } catch (e) {
+        token = null;
+      }
+    }
+    console.log("Retrieved token:", token);
+
     const response = await fetch("http://localhost:5001/properties/create", {
       method: "POST",
+      headers: {
+        "x-user-id": creatorId,
+        "Authorization": `Bearer ${token}`,
+      },
       body: listingForm,
     });
 
@@ -481,10 +498,22 @@ const useCreateListing = () => {
       alert("Không tìm thấy ID của tầng!");
       return;
     }
+
+    // Thêm xác nhận trước khi xóa
+    const confirmDelete = window.confirm(`Bạn có chắc chắn muốn xóa tầng "${floorName}"? Hành động này sẽ xóa tất cả các phòng trong tầng.`);
+    if (!confirmDelete) return;
+
     try {
       const response = await fetch(`http://localhost:5001/buildings/floors/${floorId}`, {
-        method: "DELETE"
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          "x-user-id": creatorId
+        }
       });
+
+      const data = await response.json();
+
       if (response.ok) {
         fetchBuildings();
         setSelectedFloor("");
@@ -495,11 +524,13 @@ const useCreateListing = () => {
             name: ""
           }
         }));
+        alert("Xóa tầng thành công!");
       } else {
-        alert("Xóa tầng thất bại!");
+        alert(data.message || "Xóa tầng thất bại!");
       }
     } catch (error) {
-      alert("Lỗi khi xóa tầng!");
+      console.error("Error deleting floor:", error);
+      alert("Lỗi khi xóa tầng: " + error.message);
     }
   };
 
@@ -510,10 +541,22 @@ const useCreateListing = () => {
         alert("Không tìm thấy ID của dãy!");
         return;
       }
+
+      // Thêm xác nhận trước khi xóa
+      const confirmDelete = window.confirm(`Bạn có chắc chắn muốn xóa dãy "${buildingName}"? Hành động này sẽ xóa tất cả các tầng và phòng trong dãy.`);
+      if (!confirmDelete) return;
+
       try {
         const response = await fetch(`http://localhost:5001/buildings/${buildingId}`, {
-          method: "DELETE"
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            "x-user-id": creatorId
+          }
         });
+
+        const data = await response.json();
+
         if (response.ok) {
           setSelectedBuilding("");
           setSelectedFloor("");
@@ -530,11 +573,13 @@ const useCreateListing = () => {
           }));
           
           fetchBuildings();
+          alert("Xóa dãy thành công!");
         } else {
-          alert("Xóa dãy thất bại!");
+          alert(data.message || "Xóa dãy thất bại!");
         }
       } catch (error) {
-        alert("Lỗi khi xóa dãy!");
+        console.error("Error deleting building:", error);
+        alert("Lỗi khi xóa dãy: " + error.message);
       }
     }
   };

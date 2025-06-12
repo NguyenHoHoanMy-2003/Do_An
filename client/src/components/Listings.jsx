@@ -5,48 +5,20 @@ import ListingCard from "./ListingCard";
 import Loader from "./Loader";
 import { useDispatch, useSelector } from "react-redux";
 import { setListings } from "../redux/state";
+import { ArrowForwardIos, ArrowBackIosNew } from "@mui/icons-material";
+import { useNavigate } from "react-router-dom";
 
-const Listings = () => {
+const Listings = ({ onOpenPopup, onEditListing }) => {
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [selectedCategory, setSelectedCategory] = useState("All");
-    // const listings = useSelector((state) => state.listings) || [];
+    const [currentSlide, setCurrentSlide] = useState(0);
     const listings = useSelector((state) => state.user.listings) || [];
 
-    const groupListings = (posts) => {
-        console.log("posts:", posts);
-        const grouped = {};
-        posts.forEach((post) => {
-            console.log("post:", post);
-            if (!post || !post.Property || !post.room) {
-                console.log("Bị bỏ qua:", post);
-                return;
-            }
-            const propertyId = post.property_id || "unknown";
-            const propertyName = post.Property?.name_bd || "Unknown";
-            const floorId = post.room?.floor_id || "no-floor";
-            const floorName = post.room?.floor?.name || "Không rõ tầng";
-            if (!grouped[propertyId]) {
-                grouped[propertyId] = {
-                    propertyId,
-                    propertyName,
-                    floors: {},
-                };
-            }
-            if (!grouped[propertyId].floors[floorId]) {
-                grouped[propertyId].floors[floorId] = {
-                    floorId,
-                    floorName,
-                    rooms: [],
-                };
-            }
-            grouped[propertyId].floors[floorId].rooms.push(post);
-        });
-        return Object.values(grouped).map((property) => ({
-            ...property,
-            floors: Object.values(property.floors),
-        }));
+    const handleViewAll = () => {
+        navigate("/list-room");
     };
 
     const getFeedListings = async () => {
@@ -63,7 +35,6 @@ const Listings = () => {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             const data = await response.json();
-            console.log("API data.posts:", data.posts);
             dispatch(setListings({ listings: data.posts || [] }));
         } catch (err) {
             console.error("Fetch Listings Failed:", err.message);
@@ -77,37 +48,45 @@ const Listings = () => {
         getFeedListings();
     }, [selectedCategory]);
 
-    const groupedListings = groupListings(listings);
+    const nextSlide = () => {
+        setCurrentSlide((prev) => (prev + 1) % Math.ceil(listings.length / 4));
+    };
+
+    const prevSlide = () => {
+        setCurrentSlide((prev) => (prev - 1 + Math.ceil(listings.length / 4)) % Math.ceil(listings.length / 4));
+    };
 
     return (
-        <>
+        <div className="featured-listings">
+            <div className="featured-header">
+                <h2>Phòng Nổi Bật</h2>
+                <button className="view-all-btn" onClick={handleViewAll}>Xem tất cả</button>
+            </div>
+            
             {loading ? (
                 <Loader />
             ) : error ? (
-                <div style={{ textAlign: "center", width: "100%", padding: "40px 0", fontSize: 22, color: "red" }}>
-                    {error}
-                </div>
-            ) : groupedListings.length === 0 ? (
-                <div style={{ textAlign: "center", width: "100%", padding: "40px 0", fontSize: 22, color: "#888" }}>
-                    Không có phòng nào được đăng!
-                </div>
+                <div className="error-message">{error}</div>
+            ) : listings.length === 0 ? (
+                <div className="no-listings">Không có phòng nào được đăng!</div>
             ) : (
-                <div className="listings">
-                    {groupedListings.map((property) => (
-                        <div key={property.propertyId} className="property-block">
-                            <h2 className="property-title">{property.propertyName}</h2>
-                            {property.floors.map((floor) => (
-                                <div key={floor.floorId} className="floor-block">
-                                    <h3 className="floor-title">Tầng: {floor.floorName}</h3>
-                                    <div className="rooms-row">
-                                        {floor.rooms.map((post) => (
-                                            <ListingCard key={post.id_post} post={post} />
-                                        ))}
-                                    </div>
-                                </div>
+                <div className="listings-slider">
+                    <button className="slider-btn prev" onClick={prevSlide}>
+                        <ArrowBackIosNew />
+                    </button>
+                    <div className="listings-container">
+                        <div 
+                            className="listings-track" 
+                            style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+                        >
+                            {listings.map((post) => (
+                                <ListingCard key={post.id_post} post={post} onOpenPopup={onOpenPopup} />
                             ))}
                         </div>
-                    ))}
+                    </div>
+                    <button className="slider-btn next" onClick={nextSlide}>
+                        <ArrowForwardIos />
+                    </button>
                 </div>
             )}
             <div className="category-list">
@@ -120,7 +99,7 @@ const Listings = () => {
                         <div
                             className={`category ${category.label === selectedCategory ? "selected" : ""}`}
                             key={index}
-                            onClick={() => setSelectedCategory(category.label)}
+                            
                         >
                             <div className="category_icon">{category.icon}</div>
                             <p>{category.label}</p>
@@ -128,7 +107,7 @@ const Listings = () => {
                     ))}
                 </div>
             </div>
-        </>
+        </div>
     );
 };
 
