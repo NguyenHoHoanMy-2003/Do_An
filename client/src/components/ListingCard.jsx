@@ -1,10 +1,8 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import "../styles/ListingCard.scss";
 import { ArrowForwardIos, ArrowBackIosNew } from "@mui/icons-material";
-import { useNavigate } from "react-router-dom";
-import RoomDetailPopup from "./RoomDetailPopup";
 
-const ListingCard = ({ post, onOpenPopup, onEditListing }) => {
+const ListingCard = ({ post, onOpenPopup }) => {
     const _listingId = post.id_post || "";
     const _title = post.title || "Không rõ";
     const _address = post.address || "Không rõ";
@@ -16,9 +14,6 @@ const ListingCard = ({ post, onOpenPopup, onEditListing }) => {
     const _listingPhotoPaths = post.room?.images?.map(img => img.image_url) || [];
 
     const [currentIndex, setCurrentIndex] = useState(0);
-    const [showPopup, setShowPopup] = useState(false); // State để điều khiển popup
-
-    const navigate = useNavigate();
 
     const goToPrevSlide = (e) => {
         e.stopPropagation();
@@ -29,14 +24,9 @@ const ListingCard = ({ post, onOpenPopup, onEditListing }) => {
         e.stopPropagation();
         setCurrentIndex(_listingPhotoPaths.length > 0 ? (currentIndex + 1) % _listingPhotoPaths.length : 0);
     };
-    const handleCardClick = () => {
-        // Không chuyển hướng, thay vào đó mở popup
-        // navigate(`/properties/${_listingId}`); // Comment out hoặc xóa dòng này
-        setShowPopup(true);
-    };
 
     return (
-        <div className="listing-card" onClick={handleCardClick}>
+        <div className="listing-card" onClick={() => onOpenPopup && onOpenPopup(post)}>
             <div className="slider-container">
                 <div className="slider" style={{ transform: `translateX(-${currentIndex * 100}%)` }}>
                     {Array.isArray(_listingPhotoPaths) && _listingPhotoPaths.length > 0 ? (
@@ -68,14 +58,6 @@ const ListingCard = ({ post, onOpenPopup, onEditListing }) => {
             <p>Phòng: {_roomName}</p>
             <p>Loại: {_category}</p>
             <p>Giá: {_price}</p>
-                 {/* Render Popup khi showPopup là true */}
-            {showPopup && (
-                <RoomDetailPopup
-                    post={post} // Truyền toàn bộ dữ liệu post
-                    onClose={() => setShowPopup(false)} // Hàm đóng popup
-                    onEditListing={onEditListing} // Pass the onEditListing prop
-                />
-            )}
         </div>
     );
 };

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import "../styles/Login.scss";
 import { setLogin } from "../redux/state";
 import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa"; // 👈 Thêm icon con mắt
 import { useSelector } from "react-redux";
 
@@ -87,8 +87,38 @@ const LoginPage = () => {
             token: result.token,
           })
         );
-        localStorage.setItem("token", result.token); // Thêm dòng này để lưu token vào localStorage
-        navigate("/");
+        localStorage.setItem("token", result.token);
+        if (result.user?.role === "admin") {
+          navigate("/admin");
+        } else {
+          // Logic kiểm tra thông tin user đã hoàn thành (cho host/renter)
+          const userRes = await fetch(
+            `http://localhost:5001/users/${result.user?.id_user}`,
+            {
+              headers: { Authorization: `Bearer ${result.token}` },
+            }
+          );
+          if (userRes.ok) {
+            const userData = await userRes.json();
+            const isMissing =
+              !userData.phone ||
+              !userData.password ||
+              !userData.name ||
+              !userData.national_id ||
+              !userData.date_of_issue ||
+              !userData.place_of_issue ||
+              !userData.permanent_address;
+            const cccdValid = /^[0-9]{12}$/.test(userData.national_id || "");
+            if (isMissing || !cccdValid) {
+              navigate("/info");
+            } else {
+              navigate("/");
+            }
+          } else {
+            // Nếu không fetch được user info thì vẫn cho vào /info để bổ sung
+            navigate("/info");
+          }
+        }
       } else {
         setServerError(result.message || "Đăng nhập thất bại!");
       }

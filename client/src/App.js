@@ -16,6 +16,7 @@ import PaymentHistory from "./pages/PaymentHistory";
 import PayBillRenter from "./pages/PayBillRenter";
 import ListRoom from "./pages/ListRoom";
 import AdminDashboard from "./pages/AdminDashboard";
+import RenterServicePage from "./pages/RenterServicePage";
 
 function App() {
   const user = useSelector(state => state.user?.user);
@@ -103,6 +104,11 @@ function App() {
               <PayBillRenter />
             </ProtectedRoute>
           } />
+          <Route path="/renterServic" element={
+            <ProtectedRoute allowedRoles={['renter']}>
+              <RenterServicePage />
+            </ProtectedRoute>
+          } />
 
           {/* Public property routes */}
           <Route path="/properties/:listingId" element={<ListingDetails />} />
@@ -114,6 +120,7 @@ function App() {
           <Route path="/my-contracts" element={<MyContracts />} />
           <Route path="/my-payments" element={<PaymentHistory />} />
           <Route path="/paybill-renter" element={<PayBillRenter />} />
+          <Route path="/renterService" element={<RenterServicePage />} />
         </Routes>
       </BrowserRouter>
     </div>

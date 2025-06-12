@@ -1,0 +1,111 @@
+.renter-service-container {
+  padding: 20px;
+  max-width: 900px;
+  margin: 20px auto;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+
+  h2 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 30px;
+    font-size: 2em;
+    border-bottom: 2px solid #ff6f61;
+    padding-bottom: 10px;
+  }
+
+  .service-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 25px;
+  }
+
+  .service-card {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .service-name {
+      color: #ff6f61;
+      font-size: 1.5em;
+      margin-bottom: 15px;
+      border-bottom: 1px dashed #eee;
+      padding-bottom: 10px;
+    }
+
+    .service-detail {
+      color: #555;
+      font-size: 1.1em;
+      margin: 8px 0;
+    }
+
+    .service-selection {
+      margin-top: 15px;
+      label {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1em;
+        color: #333;
+        cursor: pointer;
+
+        input[type="checkbox"] {
+          margin-right: 8px;
+          width: 18px;
+          height: 18px;
+          accent-color: #ff6f61; /* Accent color for the checkbox */
+        }
+      }
+    }
+  }
+
+  .save-button-container {
+    text-align: center;
+    margin-top: 30px;
+  }
+
+  .save-button {
+    background-color: #ff6f61;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1.1em;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+      background-color: #e65c50;
+    }
+  }
+
+  .save-message {
+    text-align: center;
+    padding: 10px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    font-weight: bold;
+
+    &.success {
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    &.error {
+      background-color: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+  }
+} 

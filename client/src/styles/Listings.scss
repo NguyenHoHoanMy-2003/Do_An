@@ -204,3 +204,9 @@
   flex-wrap: wrap;
   gap: 10px;
 }
+
+.listings-grid {
+  display: flex;
+  gap: 20px;
+  align-items: stretch;
+}
