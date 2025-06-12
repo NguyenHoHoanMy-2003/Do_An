@@ -299,8 +299,8 @@ const CreateListing = () => {
             {pendingListings.map((listing) => (
               <div key={listing.id} className="pending-listing">
                 <div className="pending-listing-info">
-                  <p>Building: {buildingName}</p>
-                  <p>Floor: {floorName}</p>
+                  <p>Building: {listing.buildingName}</p>
+                  <p>Floor: {listing.floorName}</p>
                   <p>Room: {listing.details.name}</p>
                   <p>Area: {listing.details.area}</p>
                   <p>Title: {listing.details.title}</p>
@@ -321,21 +321,21 @@ const CreateListing = () => {
           </div>
           
           <div className="form-actions">
-            <button 
-              type="button"
+          <button 
+            type="button"
               className="add-list"
-              onClick={handleAddToList}
-            >
-              Add to List
-            </button>
-            
-            <button 
+            onClick={handleAddToList}
+          >
+            Add to List
+          </button>
+          
+          <button 
               className="submit-btn" 
-              type="submit"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? "CREATING..." : "CREATE YOUR LISTING"}
-            </button>
+            type="submit"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "CREATING..." : "CREATE YOUR LISTING"}
+          </button>
           </div>
         </form>
       </div>

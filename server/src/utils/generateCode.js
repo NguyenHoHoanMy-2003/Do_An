@@ -9,5 +9,4 @@ for (let i = 0; i < length -1; i++) {
 return `${code}${numbers.charAt(Math.floor(Math.random() * numbers.length))}`;
 }
 
-
 export default generateCode 
