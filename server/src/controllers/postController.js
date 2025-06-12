@@ -100,8 +100,12 @@ exports.updatePost = async (req, res) => {
 exports.deletePost = async (req, res) => {
   try {
     const { postId } = req.params;
-    const { userId } = req.body; // Lấy userId từ body để kiểm tra quyền sở hữu
+    const userId = req.user.id_user;
+    console.log("Delete post request received - postId:", postId, "userId:", userId);
+    
     const result = await postService.deletePost(postId, userId);
+    console.log("Delete post result:", result);
+    
     res.status(200).json(result);
   } catch (error) {
     console.error("Delete Post Error:", error);
@@ -111,6 +115,28 @@ exports.deletePost = async (req, res) => {
       res.status(403).json({ message: error.message });
     } else {
       res.status(500).json({ message: error.message || "Server error when deleting post" });
+    }
+  }
+};
+
+// ================================
+// API: Xóa một phòng con trong bài đăng
+// ================================
+exports.deleteSubRoom = async (req, res) => {
+  try {
+    const { postId, roomNumber } = req.params;
+    const userId = req.user.id_user; // Lấy userId từ verifyToken
+
+    const result = await postService.deleteSubRoom(postId, roomNumber, userId);
+    res.status(200).json(result);
+  } catch (error) {
+    console.error("Delete SubRoom Error:", error);
+    if (error.message.includes('tồn tại')) {
+      res.status(404).json({ message: error.message });
+    } else if (error.message.includes('quyền')) {
+      res.status(403).json({ message: error.message });
+    } else {
+      res.status(500).json({ message: error.message || "Server error when deleting sub-room" });
     }
   }
 };
