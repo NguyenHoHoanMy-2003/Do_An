@@ -17,6 +17,8 @@ import PayBillRenter from "./pages/PayBillRenter";
 import ListRoom from "./pages/ListRoom";
 import AdminDashboard from "./pages/AdminDashboard";
 import RenterServicePage from "./pages/RenterServicePage";
+import SignContractPage from './pages/SignContractPage';
+
 
 function App() {
   const user = useSelector(state => state.user?.user);
@@ -82,6 +84,8 @@ function App() {
               <PayBill />
             </ProtectedRoute>
           } />
+
+
           <Route path="/list-room" element={
             <ProtectedRoute allowedRoles={['host', 'renter']}>
               <ListRoom />
@@ -121,6 +125,8 @@ function App() {
           <Route path="/my-payments" element={<PaymentHistory />} />
           <Route path="/paybill-renter" element={<PayBillRenter />} />
           <Route path="/renterService" element={<RenterServicePage />} />
+          <Route path="/contracts/sign-contract/:id" element={<SignContractPage />} />
+
         </Routes>
       </BrowserRouter>
     </div>

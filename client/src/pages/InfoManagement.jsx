@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+  import React, { useState, useEffect } from "react";
 import "../styles/InfoManagement.scss";
 import Navbar from "../components/Navbar";
 import { useSelector } from "react-redux";

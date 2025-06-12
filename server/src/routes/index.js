@@ -7,6 +7,8 @@ const buildingRouter = require('./buildingRoutes'); // new
 const contractRoutes = require('./contractRoutes');
 const adminRoutes = require('./adminRoutes');
 const userRoutes = require('./userRoutes');
+const userPublicRoutes = require('../routes/userPublicRoutes');
+
 
 const initRoutes = (app) => {
   app.use("/auth", authRouters);
@@ -19,6 +21,8 @@ const initRoutes = (app) => {
   app.use('/contracts', contractRoutes);
   app.use('/admin', adminRoutes);
   app.use('/users', userRoutes);
+  app.use('/users', userPublicRoutes);
+
 
   app.use('/', (req, res) => {
     res.send('server on ...');

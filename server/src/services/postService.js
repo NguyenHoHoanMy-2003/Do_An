@@ -308,9 +308,6 @@ class PostService {
             { 
               model: SubRoom, 
               as: 'subRooms',
-              include: [
-                { model: User, as: 'renter', attributes: ['id_user', 'name', 'phone', 'national_id', 'date_of_issue', 'place_of_issue'] }
-              ]
             }
           ]
         },

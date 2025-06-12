@@ -5,7 +5,7 @@ import {
   FormControl,
   InputLabel,
   Select,
-  MenuItem
+  MenuItem,
 } from "@mui/material";
 import { Search, Person, Menu } from "@mui/icons-material";
 import { useState } from "react";
@@ -38,7 +38,9 @@ const Navbar = () => {
 
   const handleApplyFilter = () => {
     const query = `?location=${filter.location}&area=${filter.area}&price=${filter.price}`;
-    const fullSearchPath = search ? `/properties/search/${search}` : "/properties/search";
+    const fullSearchPath = search
+      ? `/properties/search/${search}`
+      : "/properties/search";
     navigate(`${fullSearchPath}${query}`);
     handleFilterClose();
   };
@@ -77,9 +79,7 @@ const Navbar = () => {
         </div>
 
         <div className="navbar_filter">
-          <IconButton onClick={handleFilterClick}>
-            {filters[0].icon}
-          </IconButton>
+          <IconButton onClick={handleFilterClick}>{filters[0].icon}</IconButton>
           <Popover
             id={id}
             open={open}
@@ -87,7 +87,7 @@ const Navbar = () => {
             onClose={handleFilterClose}
             anchorOrigin={{
               vertical: "bottom",
-              horizontal: "left"
+              horizontal: "left",
             }}
           >
             <div style={{ padding: "16px", width: "250px" }}>
@@ -95,7 +95,9 @@ const Navbar = () => {
                 <InputLabel>Location</InputLabel>
                 <Select
                   value={filter.location}
-                  onChange={(e) => setFilter({ ...filter, location: e.target.value })}
+                  onChange={(e) =>
+                    setFilter({ ...filter, location: e.target.value })
+                  }
                 >
                   <MenuItem value="Hải Châu">Hải Châu</MenuItem>
                   <MenuItem value="Thanh Khê">Thanh Khê</MenuItem>
@@ -111,7 +113,9 @@ const Navbar = () => {
                 <InputLabel>Room Area</InputLabel>
                 <Select
                   value={filter.area}
-                  onChange={(e) => setFilter({ ...filter, area: e.target.value })}
+                  onChange={(e) =>
+                    setFilter({ ...filter, area: e.target.value })
+                  }
                 >
                   <MenuItem value="12-15">12-15m²</MenuItem>
                   <MenuItem value="16-20">16-20m²</MenuItem>
@@ -124,7 +128,9 @@ const Navbar = () => {
                 <InputLabel>Max Price ($)</InputLabel>
                 <Select
                   value={filter.price}
-                  onChange={(e) => setFilter({ ...filter, price: e.target.value })}
+                  onChange={(e) =>
+                    setFilter({ ...filter, price: e.target.value })
+                  }
                 >
                   <MenuItem value="lt1500000">Dưới 1tr5</MenuItem>
                   <MenuItem value="1500000-2000000">1tr5-2tr</MenuItem>
@@ -150,7 +156,9 @@ const Navbar = () => {
         {user ? (
           <span className="navbar_user_greeting">Hello, {user.name}</span>
         ) : (
-          <a href="/login" className="host">Become A Host</a>
+          <a href="/login" className="host">
+            Become A Host
+          </a>
         )}
 
         <button
@@ -168,28 +176,22 @@ const Navbar = () => {
                 <Link to="/login">Log In</Link>
                 <Link to="/register">Sign In</Link>
               </>
-            ) : user.role === 'admin' ? (
+            ) : user.role === "admin" ? (
               <>
                 <Link to="/admin">Admin Dashboard</Link>
                 <Link to="/info">Info Management</Link>
-                <Link
-                  to="/login"
-                  onClick={() => dispatch(setLogout())}
-                >
+                <Link to="/login" onClick={() => dispatch(setLogout())}>
                   Log Out
                 </Link>
               </>
-            ) : user.role === 'host' ? (
+            ) : user.role === "host" ? (
               <>
                 <Link to="/info">Info Management</Link>
                 <Link to="/create-listing">Create Listing</Link>
                 <Link to="/contracts">Contract List</Link>
                 <Link to="/paybill">Pay Bill</Link>
                 <Link to="/list-room">List Room</Link>
-                <Link
-                  to="/login"
-                  onClick={() => dispatch(setLogout())}
-                >
+                <Link to="/login" onClick={() => dispatch(setLogout())}>
                   Log Out
                 </Link>
               </>
@@ -200,10 +202,8 @@ const Navbar = () => {
                 <Link to="/my-payments">Payment History</Link>
                 <Link to="/paybill-renter">Pay Bill</Link>
                 <Link to="/list-room">List Room</Link>
-                <Link
-                  to="/login"
-                  onClick={() => dispatch(setLogout())}
-                >
+                <Link to="/renterService">Service</Link>
+                <Link to="/login" onClick={() => dispatch(setLogout())}>
                   Log Out
                 </Link>
               </>

@@ -12,15 +12,20 @@ const SearchPage = () => {
   const [loading, setLoading] = useState(true);
   const { search } = useParams();
   const listings = useSelector((state) => state.listings);
+  const token = useSelector((state) => state.user.token);
 
   const dispatch = useDispatch();
 
   const getSearchListings = async () => {
+    if (!token) return;
     try {
       const response = await fetch(
         `http://localhost:3001/properties/${search}`,
         {
           method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
 
@@ -42,8 +47,8 @@ const SearchPage = () => {
   };
 
   useEffect(() => {
-    getSearchListings()
-  }, [search])
+    getSearchListings();
+  }, [search, token]);
 
   return loading ? (
     <Loader />
