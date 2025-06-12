@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { categories } from "../data";
 import "../styles/Listings.scss";
@@ -9,7 +8,7 @@ import { setListings } from "../redux/state";
 import { ArrowForwardIos, ArrowBackIosNew } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 
-const Listings = ({ onOpenPopup }) => {
+const Listings = ({ onOpenPopup, onEditListing }) => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
@@ -81,7 +80,12 @@ const Listings = ({ onOpenPopup }) => {
                             style={{ transform: `translateX(-${currentSlide * 100}%)` }}
                         >
                             {listings.map((post) => (
-                                <ListingCard key={post.id_post} post={post} onOpenPopup={onOpenPopup} />
+                                <ListingCard 
+                                    key={post.id_post} 
+                                    post={post} 
+                                    onOpenPopup={onOpenPopup} 
+                                    onEditListing={onEditListing}
+                                />
                             ))}
                         </div>
                     </div>

@@ -82,7 +82,7 @@ function App() {
             </ProtectedRoute>
           } />
           <Route path="/list-room" element={
-            <ProtectedRoute allowedRoles={['host']}>
+            <ProtectedRoute allowedRoles={['host', 'renter']}>
               <ListRoom />
             </ProtectedRoute>
           } />

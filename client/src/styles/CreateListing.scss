@@ -9,6 +9,10 @@
     padding: 40px 20px;
   }
 
+  @include sm {
+    padding: 20px 10px;
+  }
+
   h1 {
     color: $blue;
   }
@@ -57,12 +61,18 @@
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        width: 110px;
+        width: 100%;
+        max-width: 110px;
         height: 90px;
         border: 1px solid $grey;
         border-radius: 10px;
         cursor: pointer;
         transition: 0.2s ease;
+
+        @include sm {
+          max-width: 90px;
+          height: 80px;
+        }
 
         &_icon {
           font-size: 30px;
@@ -91,11 +101,11 @@
       display: flex;
       flex-wrap: wrap;
       gap: 20px;
-      max-width: 100%; // hoặc một giới hạn nào đó nếu cần
+      max-width: 100%;
       justify-content: center;
     
       .type {
-        flex: 1 1 calc(50% - 20px); // mỗi ô chiếm khoảng 50% trừ khoảng cách
+        flex: 1 1 calc(50% - 20px);
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -105,6 +115,12 @@
         border-radius: 10px;
         cursor: pointer;
         transition: 0.3s ease;
+    
+        @include sm {
+          flex: 1 1 100%;
+          max-width: none;
+          padding: 15px 20px;
+        }
     
         &_text {
           max-width: 400px;
@@ -132,6 +148,9 @@
 
       .full {
         max-width: 700px;
+        @include sm {
+          max-width: 100%;
+        }
       }
 
     .half {
@@ -144,6 +163,9 @@
         display: flex;
         flex-direction: column;
         gap: 0;
+      }
+      @include sm {
+        max-width: 100%;
       }
     }
 
@@ -185,9 +207,24 @@
   }
 }
     .basics {
-      display: flex;
-      flex-wrap: wrap;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
       gap: 40px;
+      justify-items: center;
+
+      @include lg {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      @include md {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 30px;
+      }
+
+      @include sm {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
 
       .basic {
         display: flex;
@@ -196,6 +233,14 @@
         padding: 15px;
         border: 1px solid $grey;
         border-radius: 10px;
+        width: 100%;
+        max-width: 300px;
+
+        @include sm {
+          gap: 15px;
+          padding: 10px;
+          max-width: 100%;
+        }
 
         p {
           font-weight: 600;
@@ -238,25 +283,36 @@
       display: flex;
       flex-wrap: wrap;
       gap: 20px;
+      justify-content: center;
 
       .facility {
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        width: 200px;
+        gap: 5px;
+        width: 100%;
+        max-width: 160px;
         height: 90px;
         border: 1px solid $grey;
         border-radius: 10px;
         cursor: pointer;
         transition: 0.2s ease;
 
+        @include sm {
+          max-width: 120px;
+          height: 70px;
+        }
+
         &_icon {
-          font-size: 30px;
+          font-size: 24px;
         }
 
         p {
           font-weight: 600;
+          text-align: center;
+          margin: 0;
+          font-size: 14px;
         }
 
         &:hover {
@@ -275,16 +331,24 @@
       display: flex;
       flex-wrap: wrap;
       gap: 15px;
+      justify-content: center;
 
       .photo {
         position: relative;
-        width: 250px;
+        width: 100%;
+        max-width: 250px;
         height: 150px;
         cursor: move;
+
+        @include sm {
+          max-width: 100%;
+          height: auto;
+        }
 
         img {
           width: 100%;
           height: 100%;
+          object-fit: cover;
         }
 
         button {
@@ -322,20 +386,29 @@
       }
 
       .together {
-        width: 250px;
+        width: 100%;
+        max-width: 250px;
         height: 150px;
+
+        @include sm {
+          max-width: 100%;
+          height: auto;
+        }
       }
 
       .alone {
         padding: 40px 100px;
         border-radius: 10px;
+        width: 100%;
+        max-width: 400px;
 
         @include mm {
           padding: 40px 80px;
         }
 
         @include sm {
-          padding: 40px 30px;
+          padding: 30px 20px;
+          max-width: 100%;
         }
       }
     }
@@ -368,18 +441,19 @@
         border-radius: 10px;
         font-size: 16px;
         font-weight: 600;
-        width: 600px;
+        width: 100%;
+        max-width: 600px;
 
         @include ml {
-          width: 450px;
+          max-width: 450px;
         }
 
         @include md {
-          width: 350px;
+          max-width: 350px;
         }
 
         @include sm {
-          width: 280px;
+          max-width: 100%;
         }
 
         &:focus {
