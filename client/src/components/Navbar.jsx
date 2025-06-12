@@ -185,7 +185,7 @@ const Navbar = () => {
                 <Link to="/create-listing">Create Listing</Link>
                 <Link to="/contracts">Contract List</Link>
                 <Link to="/paybill">Pay Bill</Link>
-                <Link to="/create-listing">Create Listing</Link>
+                <Link to="/list-room">List Room</Link>
                 <Link
                   to="/login"
                   onClick={() => dispatch(setLogout())}
@@ -199,6 +199,7 @@ const Navbar = () => {
                 <Link to="/my-contracts">My Contracts</Link>
                 <Link to="/my-payments">Payment History</Link>
                 <Link to="/paybill-renter">Pay Bill</Link>
+                <Link to="/list-room">List Room</Link>
                 <Link
                   to="/login"
                   onClick={() => dispatch(setLogout())}
