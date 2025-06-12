@@ -27,12 +27,11 @@ const parseRoomName = (name) => {
 // ================================
 exports.createPost = async (req, res) => {
   try {
-    // Destructure req.body để lấy creatorId trước
-    const { creatorId } = req.body;
+    // Lấy creatorId từ user đã được xác thực bởi middleware
+    const creatorId = req.user.id_user;
 
     // Kiểm tra quyền của người dùng (chỉ host mới được phép tạo bài đăng)
-    const user = await User.findByPk(creatorId);
-    if (!user || user.role !== 'host') {
+    if (!req.user || req.user.role !== 'host') {
       return res.status(403).json({
         message: 'Chỉ người dùng có vai trò host mới được phép tạo bài đăng.'
       });

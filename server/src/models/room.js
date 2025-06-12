@@ -4,7 +4,6 @@ const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class Room extends Model {
     static associate(models) {
-      Room.hasMany(models.Contract, { foreignKey: 'room_id' });
       Room.hasMany(models.RentalInvoice, { foreignKey: 'room_id' });
       Room.hasMany(models.Image, {
         foreignKey: 'room_id',
@@ -27,6 +26,7 @@ module.exports = (sequelize, DataTypes) => {
       });
 
       Room.hasMany(models.SubRoom, { foreignKey: 'room_id', as: 'subRooms' });
+      Room.hasOne(models.Post, { foreignKey: 'room_id', as: 'post' });
     }
   }
 

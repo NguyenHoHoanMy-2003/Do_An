@@ -106,7 +106,7 @@ const verifyOtp = async (req, res) => {
     otpStore.delete(cleanedPhone);
 
     const token = jwt.sign(
-      { userId: newUser.id_user },
+      { id_user: newUser.id_user, role: newUser.role },
       process.env.JWT_SECRET,
       { expiresIn: '1d' }
     );
@@ -119,7 +119,6 @@ const verifyOtp = async (req, res) => {
         id: newUser.id_user,
         name: newUser.name,
         phone: newUser.phone
-        
       }
     });
 
@@ -142,7 +141,7 @@ const loginUser = async (req, res) => {
       return res.status(401).json({ message: "Sai mật khẩu." });
     }
 
-    const token = jwt.sign({ id: user.id_user }, process.env.JWT_SECRET, {
+    const token = jwt.sign({ id_user: user.id_user, role: user.role }, process.env.JWT_SECRET, {
       expiresIn: "1d",
     });
 

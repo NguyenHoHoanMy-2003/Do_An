@@ -30,26 +30,44 @@ const RoomDetailPopup = ({ post, onClose }) => {
     });
     const [selectedSubRoom, setSelectedSubRoom] = useState(null); // State để theo dõi phòng nhỏ được chọn
 
-
-
     const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log('Form Data Submitted for room:', selectedSubRoom?.name, formData);
-        // Logic xử lý submit form (gửi lên backend) sẽ được thêm sau
-        // Ví dụ: Gửi yêu cầu đăng ký thuê phòng
+        
+        // Kiểm tra các giá trị bắt buộc
+        if (!selectedSubRoom?.id) {
+            alert("Vui lòng chọn phòng để đăng ký!");
+            return;
+        }
+
+        if (!user?.id_user) {
+            alert("Vui lòng đăng nhập để đăng ký thuê phòng!");
+            return;
+        }
+
         try {
-            const response = await fetch("http://localhost:5001/contracts/create", { // Thay đổi endpoint nếu cần
+            const token = localStorage.getItem("token");
+            if (!token) {
+                alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại!");
+                return;
+            }
+
+            const contractData = {
+                subroom_id: selectedSubRoom.id,
+                tenant_id: user.id_user,
+                start_date: new Date().toISOString(),
+                status: 'pending',
+                gia_thue: post?.Attribute?.price || 0
+            };
+
+            console.log('Dữ liệu gửi đi:', contractData); // Để debug
+
+            const response = await fetch("http://localhost:5001/contracts/create", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    // "Authorization": `Bearer ${user.token}` // Nếu có token
+                    "Authorization": `Bearer ${token}`
                 },
-                body: JSON.stringify({
-                    roomId: roomData.id_room, // ID của Room cha
-                    subRoomId: selectedSubRoom.id, // ID của SubRoom được chọn
-                    renterInfo: formData, // Thông tin người thuê
-                    // ... các thông tin khác cần thiết cho hợp đồng
-                })
+                body: JSON.stringify(contractData)
             });
 
             if (!response.ok) {
@@ -58,11 +76,8 @@ const RoomDetailPopup = ({ post, onClose }) => {
             }
 
             const result = await response.json();
-            alert(result.message || "Đăng ký thuê phòng thành công!");
-            // Cập nhật trạng thái phòng nếu đăng ký thành công
-            // (Bạn sẽ cần một API để cập nhật trạng thái phòng con)
-            // Ví dụ: setSubRooms(prev => prev.map(sr => sr.id === selectedSubRoom.id ? { ...sr, status: 'occupied' } : sr));
-            onClose(); // Đóng popup sau khi submit thành công
+            alert("Đăng ký thuê phòng thành công! Vui lòng chờ xác nhận từ chủ nhà.");
+            onClose();
         } catch (error) {
             console.error("Lỗi đăng ký thuê phòng:", error.message);
             alert(error.message);
@@ -210,7 +225,17 @@ const RoomDetailPopup = ({ post, onClose }) => {
     useEffect(() => {
         // Khi renter chọn phòng, tự động fetch info user theo id_user
         if (isRenter && selectedSubRoom && selectedSubRoom.status === 'available' && user?.id_user) {
-            fetch(`http://localhost:5001/users/public/${user.id_user}`)
+            const token = localStorage.getItem("token");
+            if (!token) {
+                console.error("Không tìm thấy token xác thực");
+                return;
+            }
+
+            fetch(`http://localhost:5001/users/public/${user.id_user}`, {
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            })
                 .then(res => res.json())
                 .then(userData => {
                     setFormData({
@@ -222,6 +247,7 @@ const RoomDetailPopup = ({ post, onClose }) => {
                     });
                 })
                 .catch(err => {
+                    console.error("Lỗi khi lấy thông tin người dùng:", err);
                     setFormData({
                         hoTen: '', soDienThoai: '', cccdSo: '', cccdNgayCap: '', cccdNoiCap: ''
                     });

@@ -1,23 +1,23 @@
 {
   "development": {
     "username": "root",
-    "password": null,
+    "password": "thuyen2312",
     "database": "phongtro123",
     "host": "127.0.0.1",
-    "port": 3306,
+    "port": 3307,
     "dialect": "mysql",
     "logging": false
   },
   "test": {
     "username": "root",
-    "password": null,
+    "password": "thuyen2312",
     "database": "database_test",
     "host": "127.0.0.1",
     "dialect": "mysql"
   },
   "production": {
     "username": "root",
-    "password": null,
+    "password": "thuyen2312",
     "database": "database_production",
     "host": "127.0.0.1",
     "dialect": "mysql"

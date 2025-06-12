@@ -11,15 +11,20 @@ const TripList = () => {
   const [loading, setLoading] = useState(true);
   const userId = useSelector((state) => state.user._id);
   const tripList = useSelector((state) => state.user.tripList);
+  const token = useSelector((state) => state.user.token);
 
   const dispatch = useDispatch();
 
   const getTripList = async () => {
+    if (!token) return;
     try {
       const response = await fetch(
         `http://localhost:3001/users/${userId}/trips`,
         {
           method: "GET",
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
         }
       );
 
@@ -33,7 +38,7 @@ const TripList = () => {
 
   useEffect(() => {
     getTripList();
-  }, []);
+  }, [userId, token]);
 
   return loading ? (
     <Loader />

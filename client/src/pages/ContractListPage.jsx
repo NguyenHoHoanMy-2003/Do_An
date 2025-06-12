@@ -1,53 +1,63 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import "../styles/Contracts.scss";
 import Navbar from "../components/Navbar";
 import { FaSearch, FaPrint, FaHistory, FaTrash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const ContractListPage = () => {
   const navigate = useNavigate();
-  const [contracts, setContracts] = useState([
-    {
-      id: 1,
-      room: "101",
-      tenantName: "Nguyễn Văn A",
-      status: "pending",
-      startDate: "2024-03-01",
-      endDate: "2024-09-01",
-      price: 3000000  
-    },
-  ]);
+  const [contracts, setContracts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [selectedContract, setSelectedContract] = useState(null);
   const [newEndDate, setNewEndDate] = useState("");
+  const [newPrice, setNewPrice] = useState("");
   const [view, setView] = useState("pending");
+  const [modalMode, setModalMode] = useState("");
+  const token = useSelector((state) => state.user.token);
 
-
-  useEffect(() => {
-    const fetchContracts = async () => {
-      try {
-        const response = await fetch("http://localhost:5001/contracts");
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        setContracts(data.contracts || []);
-      } catch (error) {
-        console.error("Lỗi khi tải danh sách hợp đồng:", error);
+  // Memoized callback for fetching contracts
+  const fetchContracts = useCallback(async () => {
+    if (!token) return;
+    try {
+      const response = await fetch("http://localhost:5001/contracts", {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-    };
+      const data = await response.json();
+      console.log("Dữ liệu hợp đồng nhận được từ API:", data.contracts);
+      setContracts(data.contracts || []);
+    } catch (error) {
+      console.error("Lỗi khi tải danh sách hợp đồng:", error);
+    }
+  }, [token]);
 
+  // Fetch contracts when the component mounts or when fetchContracts changes
+  useEffect(() => {
     fetchContracts();
-  }, []);
+  }, [fetchContracts]);
 
-  const filtered = contracts.filter((c) =>
-    c.tenantName.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filtered = contracts.filter((c) => {
+    const tenantName = c.tenant?.name || ""; // Sử dụng optional chaining
+    return tenantName.toLowerCase().includes(searchTerm.toLowerCase());
+  });
 
-  const openModal = (contract) => {
+  console.log("Hợp đồng đã lọc để hiển thị:", filtered);
+
+  const openModal = (contract, mode) => {
     setSelectedContract(contract);
-    setNewEndDate(contract.endDate);
+    setModalMode(mode);
+    if (mode === "approve") {
+      setNewEndDate("");
+      setNewPrice("");
+    } else if (mode === "renew") {
+      setNewEndDate(contract.end_date ? new Date(contract.end_date).toISOString().split('T')[0] : "");
+    }
     setShowModal(true);
   };
 
@@ -55,18 +65,21 @@ const ContractListPage = () => {
     setShowModal(false);
     setSelectedContract(null);
     setNewEndDate("");
+    setNewPrice("");
   };
 
   const handleRenew = async (e) => {
     e.preventDefault();
+    if (!token) return;
 
     try {
-      const updatedContract = { ...selectedContract, endDate: newEndDate };
+      const updatedContract = { end_date: newEndDate, status: "approved" };
 
-      const response = await fetch(`http://localhost:5001/contracts/${selectedContract.id}`, {
+      const response = await fetch(`http://localhost:5001/contracts/${selectedContract.id_contract}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify(updatedContract),
       });
@@ -74,10 +87,11 @@ const ContractListPage = () => {
       if (response.ok) {
         setContracts((prev) =>
           prev.map((c) =>
-            c.id === selectedContract.id ? updatedContract : c
+            c.id_contract === selectedContract.id_contract ? { ...c, ...updatedContract } : c
           )
         );
         alert("Gia hạn thành công!");
+        await fetchContracts(); // Re-fetch data after successful renew
       } else {
         alert("Lỗi khi gia hạn hợp đồng.");
       }
@@ -93,17 +107,22 @@ const ContractListPage = () => {
     navigate('/contract-form', { state: { contractData: contract } });
   };
   const handleDelete = async (contract) => {
-    if (window.confirm(`Are you sure you want to delete this contract for Room ${contract.room}?`)) {
+    if (window.confirm(`Bạn có chắc chắn muốn xóa hợp đồng cho Phòng ${contract.subRoom?.room?.name}?`)) {
+      if (!token) return;
       try {
-        const response = await fetch(`http://localhost:5001/contracts/${contract.id}`, {
+        const response = await fetch(`http://localhost:5001/contracts/${contract.id_contract}`, {
           method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
         });
 
         if (response.ok) {
-          setContracts(prev => prev.filter(c => c.id !== contract.id));
-          alert('Contract deleted successfully!');
+          setContracts(prev => prev.filter(c => c.id_contract !== contract.id_contract));
+          alert('Xóa hợp đồng thành công!');
+          await fetchContracts(); // Re-fetch data after successful delete
         } else {
-          alert('Error deleting contract');
+          alert('Lỗi khi xóa hợp đồng.');
         }
       } catch (error) {
         console.error('Error deleting contract:', error);
@@ -111,8 +130,25 @@ const ContractListPage = () => {
       }
     }
   };
-  const isContractExpired = (endDate) => {
-    return new Date(endDate) < new Date();
+  const isEligibleForRenewal = (endDate, status) => {
+    if (status === 'disabled') {
+      return false;
+    }
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Normalize today to start of day
+
+    const contractEndDate = new Date(endDate);
+    contractEndDate.setHours(0, 0, 0, 0); // Normalize contractEndDate to start of day
+
+    const sevenDaysFromNow = new Date(today);
+    sevenDaysFromNow.setDate(today.getDate() + 7);
+
+    // Check if the contract end date is in the future (or today) AND within the next 7 days
+    return contractEndDate >= today && contractEndDate <= sevenDaysFromNow;
+  };
+  const handlePrint = (contract) => {
+    // TODO: Implement print functionality here
+    alert(`In hợp đồng cho phòng ${contract.subRoom?.room?.name}`);
   };
   return (
     <div>
@@ -152,26 +188,32 @@ const ContractListPage = () => {
                 <tr>
                   <th>Room</th>
                   <th>Tenant Name</th>
+                  <th>Building</th>
+                  <th>Address</th>
                   <th>State</th>
                   <th>Action</th>
                 </tr>
               </thead>
               <tbody>
                 {filtered
-                  .filter((c) => c.status === "pending")
+                  .filter((c) => c.status === "pending" || c.status === "signed")
                   .map((c) => (
-                    <tr key={c.id}>
-                      <td>{c.room}</td>
-                      <td>{c.tenantName}</td>
+                    <tr key={c.id_contract}>
+                      <td>{c.SubRoom?.name}</td>
+                      <td>{c.tenant?.name}</td>
+                      <td>{c.SubRoom?.room?.property?.name_bd}</td>
+                      <td>{c.SubRoom?.room?.property?.street_address}</td>
                       <td>
-                        <span className="status pending">Pending</span>
+                        <span className={`status ${c.status === "pending" ? "pending" : "signed"}`}>
+                          {c.status === "pending" ? "Pending" : "Signed (Waiting for Approval)"}
+                        </span>
                       </td>
                       <td className="actions-cell">
                         <button 
                           className="btn small" 
                           onClick={() => handleDetailClick(c)}
                         >
-                          Detail
+                          Approve
                         </button>
                         <button 
                           className="btn small delete" 
@@ -197,20 +239,24 @@ const ContractListPage = () => {
                   <th>Start Date</th>
                   <th>End Date</th>
                   <th>Price</th>
+                  <th>Building</th>
+                  <th>Address</th>
                   <th>State</th>
                   <th>Action</th>
                 </tr>
               </thead>
               <tbody>
                 {filtered
-                  .filter((c) => c.status === "confirmed" || c.status === "disabled")
+                  .filter((c) => c.status === "approved" || c.status === "disabled")
                   .map((c) => (
-                    <tr key={c.id}>
-                      <td>{c.room}</td>
-                      <td>{c.tenantName}</td>
-                      <td>{new Date(c.startDate).toLocaleDateString('en-GB')}</td>
-                      <td>{new Date(c.endDate).toLocaleDateString('en-GB')}</td>
-                      <td>{c.price.toLocaleString('en-GB')} VND</td>
+                    <tr key={c.id_contract}>
+                      <td>{c.SubRoom?.name}</td>
+                      <td>{c.tenant?.name}</td>
+                      <td>{new Date(c.start_date).toLocaleDateString('en-GB')}</td>
+                      <td>{new Date(c.end_date).toLocaleDateString('en-GB')}</td>
+                      <td>{c.gia_thue?.toLocaleString('en-GB')} VND</td>
+                      <td>{c.SubRoom?.room?.property?.name_bd}</td>
+                      <td>{c.SubRoom?.room?.property?.street_address}</td>
                       <td>
                         <span className={`status ${c.status === "disabled" ? "disabled" : "confirmed"}`}>
                           {c.status === "disabled" ? "Disabled" : "Confirmed"}
@@ -218,13 +264,19 @@ const ContractListPage = () => {
                       </td>
                       <td className="actions-cell">
                         <button
-                          onClick={() => openModal(c)}
+                          onClick={() => handleDetailClick(c)}
                           className="btn small"
-                          disabled={c.status !== 'disabled' && isContractExpired(c.endDate)}
+                        >
+                          View
+                        </button>
+                        <button
+                          onClick={() => openModal(c, "renew")}
+                          className="btn small"
+                          disabled={!isEligibleForRenewal(c.end_date, c.status)}
                         >
                           Renew
                         </button>
-                        <button className="btn small print">
+                        <button className="btn small print" onClick={() => handlePrint(c)}>
                           <FaPrint /> Print
                         </button>
                         <button
@@ -241,14 +293,14 @@ const ContractListPage = () => {
           </div>
         )}
 
-        {showModal && (
+        {showModal && modalMode === "renew" && (
           <div className="modal-overlay">
             <div className="modal">
-              <h3>Renew Contract</h3>
-              <p className="tenant-name">Tenant: {selectedContract.tenantName}</p>
+              <h3>Gia hạn hợp đồng</h3>
+              <p className="tenant-name">Người thuê: {selectedContract.tenant?.name}</p>
               <form onSubmit={handleRenew}>
                 <div className="form-group">
-                  <label>New End Date:</label>
+                  <label>Ngày kết thúc mới:</label>
                   <input
                     type="date"
                     value={newEndDate}
@@ -257,9 +309,9 @@ const ContractListPage = () => {
                   />
                 </div>
                 <div className="modal-actions">
-                  <button type="submit" className="btn">Save</button>
+                  <button type="submit" className="btn">Lưu</button>
                   <button type="button" onClick={closeModal} className="btn cancel">
-                    Cancel
+                    Hủy
                   </button>
                 </div>
               </form>

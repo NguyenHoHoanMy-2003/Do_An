@@ -5,6 +5,20 @@ exports.getUserDetails = async (req, res) => {
   try {
     const { id } = req.params;
     const user = await User.findByPk(id, {
+        attributes: [
+            'id_user',
+            'name',
+            'phone',
+            'email',
+            'password',
+            'role',
+            'date_of_birth',
+            'gender',
+            'date_of_issue',
+            'place_of_issue',
+            'permanent_address',
+            'national_id'
+        ]
     });
 
     if (!user) {

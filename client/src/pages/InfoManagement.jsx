@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 
 const InfoManagement = () => {
   const userId = useSelector(state => state.user?.user?.id_user) || localStorage.getItem("userId");
+  const token = useSelector(state => state.user.token);
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [showConfirmPopup, setShowConfirmPopup] = useState(false);
@@ -27,11 +28,21 @@ const InfoManagement = () => {
   const [errorMsg, setErrorMsg] = useState("");
 
   useEffect(() => {
+    console.log("Current userId:", userId);
     const fetchUser = async () => {
+      if (!token) {
+        setLoading(false);
+        return;
+      }
       try {
-        const res = await fetch(`http://localhost:5001/users/${userId}`);
+        const res = await fetch(`http://localhost:5001/users/${userId}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
         if (res.ok) {
           const data = await res.json();
+          console.log("User data fetched successfully:", data);
           setFormData({
             phone: data.phone || "",
             password: data.password || "",
@@ -60,7 +71,7 @@ const InfoManagement = () => {
       setLoading(false);
       setErrorMsg("Không tìm thấy ID người dùng.");
     }
-  }, [userId]);
+  }, [userId, token]);
 
   const handleChange = (e) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -84,11 +95,15 @@ const InfoManagement = () => {
   const handleConfirmSave = async () => {
     setSuccessMsg("");
     setErrorMsg("");
+    if (!token) return;
     try {
       const updateData = { ...formData };
       const res = await fetch(`http://localhost:5001/users/${userId}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          'Authorization': `Bearer ${token}`,
+        },
         body: JSON.stringify(updateData)
       });
 
